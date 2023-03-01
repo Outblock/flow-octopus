@@ -480,7 +480,6 @@ export const sendTransaction = async (cadence, args, userAddress, sharedAccountA
   console.log('userKey ->', userKey)
   console.log('walletKeyIndex ->', walletKeyIndex)
   const weight = userKey.weight
-  // const walletKeyIndex = userKey.index
   const account = await fcl.send([fcl.getAccount(walletAddress)]).then(fcl.decode);
   const latestSealedBlock = await fcl.send([fcl.getBlock(true)]).then(fcl.decode);
 
@@ -504,6 +503,7 @@ export const sendTransaction = async (cadence, args, userAddress, sharedAccountA
     authorizers: [sharedAccountAddress],
     computeLimit: 9999,
   };
+  const message = sdk.encodeTransactionEnvelope(tx);
   const signedTx = await signTx(tx, walletAddress, walletKeyIndex)
   const docRef = doc(db, 'pendingTransaction', sharedAccountAddress)
   await setDoc(docRef, {
@@ -513,6 +513,12 @@ export const sendTransaction = async (cadence, args, userAddress, sharedAccountA
     message,
     tx: signedTx
   })
+
+  console.log('signedTx ==>', signedTx)
+
+  if (weight > 1000) {
+    await sendRawTransaction(tx)
+  }
 };
 
 export const signTx = async (tx, walletAddress, walletKeyIndex) => {
@@ -528,7 +534,10 @@ export const signTx = async (tx, walletAddress, walletKeyIndex) => {
 }
 
 export const sendRawTransaction = async (tx) => {
-  axios.post(
+
+  console.log('sendRawTransaction ==>', tx)
+
+  return await axios.post(
     `${process.env.NEXT_PUBLIC_FLOW_ACCESS_NODE_REST}/v1/transactions`,
     {
       script: Buffer.from(tx.cadence).toString("base64"),
