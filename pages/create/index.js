@@ -5,7 +5,8 @@ import ReactGA from 'react-ga'
 import { useRouter } from 'next/router'
 import * as fcl from '@onflow/fcl'
 import { MinusIcon } from '@chakra-ui/icons'
-
+import { getFirestore } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore"; 
 import {
   Box,
   Stack,
@@ -35,8 +36,9 @@ import Layout from '../../components/layouts/app'
 import { gaCode } from '../../config/constants'
 import accountStore from '../../stores/account'
 import { useAccount } from 'api/query'
-import { ellipseStr, isFlowAddr } from 'utils'
+import { ellipseStr, isFlowAddr, db } from 'utils'
 import { createAccount } from 'api/index'
+import { transactions } from '../../api/transactions';
 
 export default function Create() {
   const router = useRouter()
@@ -85,30 +87,62 @@ export default function Create() {
       const { creatorKeyStr, creatorWeight } = values
       const creatorKeyInfo = JSON.parse(creatorKeyStr)
       const { publicKey, hashAlgo, signAlgo, index } = creatorKeyInfo
-
       const pubKeys = [publicKey]
       const signAlgos = [signAlgo]
       const hashAlgos = [hashAlgo]
       const weights = [Number(creatorWeight).toFixed(2)]
 
+      const user = await fcl.currentUser.snapshot()
+      const addr = user.addr
+      const accounts = [
+        {
+          address: addr,
+          index,
+          publicKey,
+          hashAlgo,
+          signAlgo,
+          weight: Number(creatorWeight)
+        },
+      ]
+
       addtionKeys.map((key) => {
-        const { publicKey, signAlgo, hashAlgo, weight, index } = key
+        const { publicKey, signAlgo, hashAlgo, weight, index, address } = key
         pubKeys.push(publicKey)
         signAlgos.push(signAlgo)
         hashAlgos.push(hashAlgo)
         weights.push(Number(weight).toFixed(2))
+        accounts.push({
+          address: address,
+          index,
+          publicKey,
+          hashAlgo,
+          signAlgo,
+          weight: Number(weight)
+        })
       })
 
       console.log(pubKeys, signAlgos, hashAlgos, weights)
-
-      const res = await createAccount(pubKeys, signAlgos, hashAlgos, weights)
-
-      console.log(res)
+      const {trxId, txStatus} = await createAccount(pubKeys, signAlgos, hashAlgos, weights)
+      await writeToFirebase(trxId, txStatus, accounts)
       // todo add account and emit event on database
       setLoading(false)
     } catch (error) {
       setLoading(false)
     }
+  }
+
+  const writeToFirebase = async (trxId, txStatus, accounts) => {
+    const filter = txStatus.events.filter(event => event.type === "flow.AccountCreated")
+    const created_address = filter[0].data.address
+    const tx = await fcl.send([fcl.getTransaction(trxId)]).then(fcl.decode);;
+    const obj = {
+      id: trxId,
+      address: created_address,
+      accounts,
+      transaction: tx,
+      result: txStatus,
+    }
+    await setDoc(doc(db, "accounts_creation", trxId), obj);
   }
 
   const renderForm = () => {
@@ -184,7 +218,7 @@ export default function Create() {
                     signAlgoString,
                   } = key
                   return (
-                    <Flex justify="space-between" align="center">
+                    <Flex key={idx} justify="space-between" align="center">
                       <Flex w="60%">
                         {ellipseStr(publicKey, 8)}
                         {` ${address}`}

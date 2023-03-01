@@ -736,3 +736,18 @@ export const buildAndSendTrx = async (key, args = [], opt = {}) => {
     return null
   }
 }
+
+export const buildAndSendTrxWithId = async (key, args = [], opt = {}) => {
+  try {
+    let trxScript = transactions[key]
+    if (typeof trxScript == 'function') {
+      trxScript = trxScript(opt)
+    }
+    const trxId = await sendTrx(trxScript, args)
+    const txStatus = await fcl.tx(trxId).onceSealed()
+    return {trxId, txStatus}
+  } catch (error) {
+    console.log(error)
+    return null
+  }
+}

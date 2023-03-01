@@ -2,7 +2,7 @@ import * as fcl from '@onflow/fcl'
 import { UInt64, Address, String, UFix64, Array, UInt8 } from '@onflow/types'
 
 import { buildAndExecScript } from './scripts'
-import { buildAndSendTrx } from './transactions'
+import { buildAndSendTrx, buildAndSendTrxWithId } from './transactions'
 import {
   referAddr,
   getSupportTokenConfig,
@@ -21,7 +21,7 @@ export const createAccount = async (
   hashAlgorithms,
   weights,
 ) => {
-  const res = await buildAndSendTrx('create_account', [
+  const res = await buildAndSendTrxWithId('create_account', [
     fcl.arg(pubKeys, Array(String)),
     fcl.arg(signatureAlgorithms, Array(UInt8)),
     fcl.arg(hashAlgorithms, Array(UInt8)),

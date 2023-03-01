@@ -8,6 +8,8 @@ import { send as httpSend } from '@onflow/transport-http'
 import { send as grpcSend } from '@onflow/transport-grpc'
 import { init } from '@onflow/fcl-wc'
 import firebase from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+import { initializeApp } from "firebase/app";
 
 import {
   nodeUrl,
@@ -49,24 +51,7 @@ export const fclinit = () => {
     )
 
   initWalletConnect()
-  setupFirebase()
   // console.log('initWalletConnect')
-}
-
-export const setupFirebase = () => {
-  const firebaseConfig = {
-    apiKey: "AIzaSyDAd4nmAJWS3ykeD79YD6HRSUdybp33nE4",
-    authDomain: "flow-octopus.firebaseapp.com",
-    projectId: "flow-octopus",
-    storageBucket: "flow-octopus.appspot.com",
-    messagingSenderId: "339748207073",
-    appId: "1:339748207073:web:0dbb0d758fb8690b2d3aa0"
-  };
-
-  if (firebase && !firebase.app?.name) {
-    initializeApp(firebaseConfig);
-    console.log('firebaseApp ->', firebase)
-  }
 }
 
 export const initWalletConnect = async () => {
@@ -402,3 +387,16 @@ export const algos2Raw = (algoStr) => {
 export const hashAlgo2Raw = (hashStr) => {
   
 }
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDAd4nmAJWS3ykeD79YD6HRSUdybp33nE4",
+  authDomain: "flow-octopus.firebaseapp.com",
+  projectId: "flow-octopus",
+  storageBucket: "flow-octopus.appspot.com",
+  messagingSenderId: "339748207073",
+  appId: "1:339748207073:web:0dbb0d758fb8690b2d3aa0"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+export const app = firebaseApp
+export const db = getFirestore(app)
