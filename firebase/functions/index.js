@@ -33,5 +33,13 @@ exports.accountCreationTrigger = functions.firestore
         }, {merge: true})
 
         doc.set({sharedAccount: FieldValue.arrayUnion(sharedAddress)}, {merge: true})
+
+        const sharedDoc = db.doc(`shared_accounts/${sharedAddress}`)
+        sharedDoc.set({
+            timestamp: FieldValue.serverTimestamp(),
+            createTxId: data.id,
+            ...acc
+        }, {merge: true})
+        sharedDoc.set({accounts: FieldValue.arrayUnion(userAddress)}, {merge: true})
     }
 });
