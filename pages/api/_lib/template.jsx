@@ -1,5 +1,4 @@
 import React from 'react'
-// import logo from '../../../public/assets/flowns_icon_gray_dark.svg'
 import { timeformater } from '../../../utils/index'
 
 // import emoji from 'react-easy-emoji'

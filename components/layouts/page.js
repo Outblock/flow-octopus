@@ -16,7 +16,7 @@ export default function Layout({ children }) {
   return (
     <>
       <Head>
-        <title>Flowns</title>
+        <title>Flow octopus</title>
       </Head>
       <main>
         <Container w='100%' h='100%' maxW='1440px'>

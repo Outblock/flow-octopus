@@ -20,6 +20,11 @@ import {
   Divider,
   Spinner,
   Badge,
+  Slider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
+  SliderMark,
 } from '@chakra-ui/react'
 
 import * as Yup from 'yup'
@@ -79,6 +84,12 @@ export default function Create() {
     creatorWeight: '',
     selectedKey: '',
     selectedWeight: '',
+  }
+
+  const labelStyles = {
+    mt: '2',
+    ml: '-2.5',
+    fontSize: 'sm',
   }
 
   const onSubmit = async (values) => {
@@ -197,15 +208,59 @@ export default function Create() {
                   label={'Weigth'}
                   max={1000}
                   min={1}
-                  showStepper={false}
+                  // showStepper={false}
                   numberInputProps={{
                     placeholder: '123...',
                     min: 1,
                     precision: 0,
+                    step: 10,
                   }}
                 />
               </InputRightElement>
             </InputGroup>
+            <Slider
+              flex="1"
+              // step={50}
+              colorScheme="blue"
+              focusThumbOnChange={false}
+              value={values.creatorWeight}
+              max={1000}
+              min={1}
+              mb={4}
+              onChange={(e) => {
+                setFieldValue('creatorWeight', e)
+              }}
+            >
+              <SliderMark value={250} {...labelStyles}>
+                250
+              </SliderMark>
+              <SliderMark value={500} {...labelStyles}>
+                500
+              </SliderMark>
+              <SliderMark value={750} {...labelStyles}>
+                750
+              </SliderMark>
+              {/* <SliderMark
+                value={values.creatorWeight}
+                textAlign="center"
+                bg="blue.500"
+                color="white"
+                mt="-10"
+                ml="-5"
+                w="12"
+              >
+                {values.creatorWeight}
+              </SliderMark> */}
+              <SliderTrack>
+                <SliderFilledTrack />
+              </SliderTrack>
+              <SliderThumb
+                fontSize="sm"
+                boxSize="32px"
+                children={values.creatorWeight}
+              />
+            </Slider>
+
             {addtionKeys.length > 0 && (
               <>
                 {addtionKeys.map((key, idx) => {
@@ -269,6 +324,7 @@ export default function Create() {
                 })}
               </>
             )}
+
             <Divider my={4} />
             <Flex align="center" justify="space-between">
               <InputControl
@@ -325,7 +381,7 @@ export default function Create() {
                     minH="100px"
                     name={'selectedWeight'}
                     label={'Weigth'}
-                    showStepper={false}
+                    // showStepper={false}
                     max={1000}
                     min={1}
                     numberInputProps={{
@@ -393,11 +449,54 @@ export default function Create() {
                 </Button>
               </Center>
             </Flex>
+            <Slider
+              flex="1"
+              mb={4}
+              // step={50}
+              focusThumbOnChange={false}
+              value={values.selectedWeight}
+              colorScheme="green"
+              max={1000}
+              min={1}
+              onChange={(e) => {
+                setFieldValue('selectedWeight', e)
+              }}
+            >
+              <SliderMark value={250} {...labelStyles}>
+                250
+              </SliderMark>
+              <SliderMark value={500} {...labelStyles}>
+                500
+              </SliderMark>
+              <SliderMark value={750} {...labelStyles}>
+                750
+              </SliderMark>
+              {/* <SliderMark
+                value={values.creatorWeight}
+                textAlign="center"
+                bg="blue.500"
+                color="white"
+                mt="-10"
+                ml="-5"
+                w="12"
+              >
+                {values.creatorWeight}
+              </SliderMark> */}
+              <SliderTrack>
+                <SliderFilledTrack />
+              </SliderTrack>
+              <SliderThumb
+                fontSize="sm"
+                boxSize="32px"
+                children={values.selectedWeight}
+              />
+            </Slider>
+
             <SubmitButton
               isLoading={loading}
               disabled={Object.keys(errors).length || addtionKeys.length == 0}
             >
-              Create Account
+              Create
             </SubmitButton>
           </Box>
         )}

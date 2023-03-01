@@ -44,7 +44,7 @@ export const fclinit = () => {
     .put('0xFlowToken', flowTokenAddr)
     .put('0xFUSD', fusdTokenAddr)
     // .put('grpc.metadata', { api_key: alchemyKey })
-    .put('app.detail.title', 'Flowns')
+    .put('app.detail.title', 'Octopus')
     .put(
       'app.detail.icon',
       'https://trello.com/1/cards/624713879fd8c23f0395c63d/attachments/6247139af2071076c7d74c93/previews/6247139bf2071076c7d74cb3/download/logo192.png',
