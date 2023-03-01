@@ -78,14 +78,12 @@ export default function Account() {
                 const accountInfo = data[addr]
                 const { pendingTrx } = accountInfo
                 console.log('pendingTrx ===>', pendingTrx)
-                const hasPending =
-                  pendingTrx &&
-                  pendingTrx[currentAddr]
+                const hasPending = pendingTrx && pendingTrx.tx
                 let keys = Object.keys(accountInfo)
                 keys = keys.splice(0, keys.length - 3)
                 return (
-                  <AccordionItem key={idx}>
-                    <AccordionButton key={`btn-${idx}`}>
+                  <AccordionItem>
+                    <AccordionButton>
                       <Flex
                         flex={1}
                         textAlign="left"
@@ -100,7 +98,7 @@ export default function Account() {
                         >
                           {addr}
                         </Text>
-                        {!hasPending && (
+                        {hasPending && (
                           <Flex mx={8} align="center" justify="space-between">
                             <IconButton
                               colorScheme="teal"
@@ -114,7 +112,6 @@ export default function Account() {
                           </Flex>
                         )}
                       </Flex>
-
                       <AccordionIcon />
                     </AccordionButton>
 

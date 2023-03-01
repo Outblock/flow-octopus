@@ -19,11 +19,21 @@ import {
   ButtonGroup,
   Flex,
 } from '@chakra-ui/react'
-import { SelectControl, NumberInputControl, SubmitButton, InputControl } from 'formik-chakra-ui'
+import {
+  SelectControl,
+  NumberInputControl,
+  SubmitButton,
+  InputControl,
+} from 'formik-chakra-ui'
 import * as Yup from 'yup'
 import useCurrentUser from '../../hooks/currentUser'
 import { getSupportTokenConfig } from '../../config/constants'
-import { transferNFT, transferToken, queryDomainRecord, transferTokenWithSharedAccount } from '../../api'
+import {
+  transferNFT,
+  transferToken,
+  queryDomainRecord,
+  transferTokenWithSharedAccount,
+} from '../../api'
 import { toast, validateAddress, validateDomain, isFlowAddr } from '../../utils'
 import accountStore from '../../stores/account'
 import modalStore, { setTransferModalConf } from '../../stores/transferModal'
@@ -78,18 +88,22 @@ const Components = ({ cb }) => {
           return true
         }
       })
-      .test('validateDomain', t('domain.invalid'), async (value = '', constext) => {
-        if (value.indexOf('.') == -1 && value.indexOf('0x') == 0) {
-          return true
-        }
-        let nameArr = value.split('.')
-        setResolver('')
-        if (nameArr.length == 2 && nameArr[1].length > 1) {
-          await handleValidate(value)
-          return validateDomain(value)
-        }
-        return false
-      }),
+      .test(
+        'validateDomain',
+        t('domain.invalid'),
+        async (value = '', constext) => {
+          if (value.indexOf('.') == -1 && value.indexOf('0x') == 0) {
+            return true
+          }
+          let nameArr = value.split('.')
+          setResolver('')
+          if (nameArr.length == 2 && nameArr[1].length > 1) {
+            await handleValidate(value)
+            return validateDomain(value)
+          }
+          return false
+        },
+      ),
   })
 
   const onClose = () => {
@@ -139,12 +153,27 @@ const Components = ({ cb }) => {
       let req = null
       if (type == 'FT') {
         // req = transferToken(token, Number(amount), to)
-        req = transferTokenWithSharedAccount(token, Number(amount), to, from, address)
+        req = transferTokenWithSharedAccount(
+          token,
+          Number(amount),
+          to,
+          from,
+          address,
+        )
       } else {
         req = transferNFT(type, token, to)
       }
       const res = await req
 
+      console.log(res)
+
+      if (res == true) {
+        toast({
+          title: t(`create.transfer.success`, { token: token }),
+          status: 'success',
+        })
+        onClose()
+      }
       const { status = 0 } = res
       if (status === 4) {
         ReactGA.event({
@@ -194,11 +223,11 @@ const Components = ({ cb }) => {
       >
         {({ handleSubmit, values, errors, setFieldValue }) => (
           <Box
-            border='1px dashed rgba(0, 224, 117, 0.5)'
-            rounded='md'
+            border="1px dashed rgba(0, 224, 117, 0.5)"
+            rounded="md"
             // minH='300px'
             p={4}
-            as='form'
+            as="form"
             onSubmit={handleSubmit}
           >
             <Box>
@@ -207,7 +236,7 @@ const Components = ({ cb }) => {
                   <SelectControl
                     mb={4}
                     label={t('token')}
-                    name='token'
+                    name="token"
                     selectProps={{
                       placeholder: t('select.token'),
                       variant: 'flushed',
@@ -228,14 +257,19 @@ const Components = ({ cb }) => {
                       )
                     })}
                   </SelectControl>
-                  <Flex mb={2} justifyContent='space-between' fontSize='10px' opacity={0.7}>
+                  <Flex
+                    mb={2}
+                    justifyContent="space-between"
+                    fontSize="10px"
+                    opacity={0.7}
+                  >
                     <Text>{t('balance')}</Text>
                     <Text>{tokenBals[values.token]}</Text>
                   </Flex>
 
                   <NumberInputControl
                     mb={4}
-                    name='amount'
+                    name="amount"
                     label={t('amount')}
                     inputProps={{
                       variant: 'flushed',
@@ -248,7 +282,7 @@ const Components = ({ cb }) => {
                   name={t('token')}
                   label={t('token')}
                   isReadOnly
-                  spellCheck='false'
+                  spellCheck="false"
                   inputProps={{ value: token }}
                 />
               )}
@@ -261,46 +295,46 @@ const Components = ({ cb }) => {
               <Flex mb={2}>
                 {resolver && !isFlowAddr(values.to) ? (
                   <Box>
-                    <Text fontSize='14px' textStyle='desc'>
+                    <Text fontSize="14px" textStyle="desc">
                       {t('owner') + ': '}
                       {resolver}
                     </Text>
                   </Box>
                 ) : (
                   <Box mb={0}>
-                    {resolving && <Spinner type='dots' />}
+                    {resolving && <Spinner type="dots" />}
                     {!resolving && resolver === null && (
-                      <Text textStyle='desc'>{t('resolve.failed')}</Text>
+                      <Text textStyle="desc">{t('resolve.failed')}</Text>
                     )}
                   </Box>
                 )}
               </Flex>
             </Box>
-            <ButtonGroup w='100%'>
+            <ButtonGroup w="100%">
               <SubmitButton
-                variant='ghost'
-                border='1px'
-                borderStyle='dashed'
+                variant="ghost"
+                border="1px"
+                borderStyle="dashed"
                 isLoading={loading}
                 disabled={
                   Object.keys(errors).length ||
                   resolving ||
                   (!isFlowAddr(values.to) && !resolving && resolver === null)
                 }
-                w='50%'
-                borderColor='primary'
-                textColor='primary'
-                spinner={<Spinner type='dots' />}
+                w="50%"
+                borderColor="primary"
+                textColor="primary"
+                spinner={<Spinner type="dots" />}
               >
                 {t('transfer')}
               </SubmitButton>
               <Button
-                w='50%'
-                color='secondary'
+                w="50%"
+                color="secondary"
                 disabled={loading}
-                variant='ghost'
-                border='1px'
-                borderStyle='dashed'
+                variant="ghost"
+                border="1px"
+                borderStyle="dashed"
                 onClick={onClose}
               >
                 {t('cancel')}

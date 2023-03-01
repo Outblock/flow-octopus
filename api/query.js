@@ -300,7 +300,7 @@ export const useTrxs = (address, limit = 10) => {
         return []
       }
 
-      console.log(config, 'config')
+
       const { pageParam = '' } = config
 
       const queryObj = {
@@ -322,7 +322,7 @@ export const useTrxs = (address, limit = 10) => {
       const { transactions = {} } = account
       const { edges = [], pageInfo } = transactions
       const { endCursor, hasNextPage } = pageInfo
-      console.log(edges, pageInfo)
+      // console.log(edges, pageInfo)
       if (transactions && edges.length > 0) {
         return {
           trxs: edges,

@@ -49,7 +49,7 @@ export const fclinit = () => {
     .put('app.detail.title', 'Octopus')
     .put(
       'app.detail.icon',
-      'https://trello.com/1/cards/624713879fd8c23f0395c63d/attachments/6247139af2071076c7d74c93/previews/6247139bf2071076c7d74cb3/download/logo192.png',
+      'https://trello.com/1/cards/63fe15a5a214144acf5f0dc7/attachments/63fe15b269866469f0adc349/previews/63fe15b269866469f0adc3bd/download/Component_8_%283%29.png',
     )
 
   initWalletConnect()

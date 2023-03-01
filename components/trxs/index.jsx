@@ -33,7 +33,7 @@ export default function Comp(props) {
   } = useTrxs(address)
   let { pages = [] } = data
 
-  console.log(pages, '-======')
+  // console.log(pages, '-======')
 
   const hasData = pages[0] && !!pages[0].hasOwnProperty('trxs')
   const nextCursor = pages.length > 0 ? pages[pages.length - 1].nextPage : ''
