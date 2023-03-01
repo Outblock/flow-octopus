@@ -205,10 +205,7 @@ const Components = ({ children }) => {
                     </Text>
                   </Flex>
 
-                  {/* <Flex justifyContent='space-between'>
-                    <Text>{t('owned.domains')}</Text>
-                    <Text>{domainIds.length}</Text>
-                  </Flex> */}
+                 
                   <UserAssets domains={domains} bals={tokenBals} cb={refetch} />
                 </Stack>
               </DrawerBody>

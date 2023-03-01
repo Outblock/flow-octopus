@@ -80,6 +80,7 @@ export const navLinks = {
 
 export const appNavLinks = {
   account: '/account',
+  create: '/create',
 }
 
 export const links = {

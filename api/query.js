@@ -2,6 +2,7 @@ import {
   useQuery,
   // useMutation,
 } from 'react-query'
+import * as fcl from '@onflow/fcl'
 
 import { rootNames } from '../config/constants'
 import domainStore from '../stores/domains'
@@ -27,6 +28,7 @@ const ROOT_DOMAINS_QUERY = 'getRootDomains'
 const FLOWNS_INFO_QUERY = 'getFlownsInfo'
 const DOMAIN_HISTORY_QUERY = 'getDomainHistory'
 const USER_COLLECTION_QUERY = 'getUserCollection'
+const USER_ACCOUNT_QUERY = 'getUserAccount'
 
 export const getConnectedState = () => {
   const { appState = {} } = globalStore.useState('appState')
@@ -173,4 +175,20 @@ export const useRegisterHistory = (parentName = '') => {
   }
 
   return useQuery(`${DOMAIN_HISTORY_QUERY}-${parentName}`, queryRegisterHistory)
+}
+
+export const useAccount = (address) => {
+  const queryAccountInfo = async () => {
+    try {
+      const account = await fcl.account(address)
+      console.log(account)
+      // console.log(history, parentName)
+      return account
+    } catch (error) {
+      console.log(error)
+      return {}
+    }
+  }
+
+  return useQuery(`${USER_ACCOUNT_QUERY}-${address}`, queryAccountInfo)
 }
