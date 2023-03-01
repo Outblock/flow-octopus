@@ -20,7 +20,7 @@ const Components = ({ children }) => {
         alt="Octopus"
         onClick={() => router.push('/')}
       />
-      <Text ml={2}>Octous</Text>
+      <Text ml={2}>Octpus</Text>
     </Center>
   )
 }
