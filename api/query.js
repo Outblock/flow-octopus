@@ -1,6 +1,7 @@
 import {
   useQuery,
   // useMutation,
+  useInfiniteQuery,
 } from 'react-query'
 import * as fcl from '@onflow/fcl'
 
@@ -19,6 +20,7 @@ import {
   queryGraffle,
   getDomainDeprecatedInfo,
   getUserDefaultDomain,
+  queryNFTs
 } from './index'
 import { namehash } from '../utils/hash'
 
@@ -29,6 +31,7 @@ const FLOWNS_INFO_QUERY = 'getFlownsInfo'
 const DOMAIN_HISTORY_QUERY = 'getDomainHistory'
 const USER_COLLECTION_QUERY = 'getUserCollection'
 const USER_ACCOUNT_QUERY = 'getUserAccount'
+const GET_FLOW_NFTs = 'getFLOWNFTs'
 
 export const getConnectedState = () => {
   const { appState = {} } = globalStore.useState('appState')
@@ -68,7 +71,7 @@ export const useRootDomains = () => {
   return useQuery(ROOT_DOMAINS_QUERY, getRootDomains)
 }
 
-export const useUserCollection = (address = '') => {
+export const useUserCollection = (address = '', flag = true) => {
   const queryUserCollection = async () => {
     if (address == null || address.length === 0) {
       return { collectionIds: [], initState: false }
@@ -82,9 +85,6 @@ export const useUserCollection = (address = '') => {
       domains = await getUserDomainsInfo(address)
     }
 
-    // domains = domains.map(domain=>{
-
-    // })
     for (let i = 0; i < domains.length; i++) {
       let domain = domains[i]
       if (domain.deprecated) {
@@ -108,14 +108,26 @@ export const useUserCollection = (address = '') => {
     }
     const flowBalance = await queryFlowBalence(address)
     const bals = await queryBals(address)
-    accountStore.setState({
-      domainIds: collectionIds,
+    if (flag) {
+      accountStore.setState({
+        domainIds: collectionIds,
+        flowBalance,
+        domains,
+        tokenBals: bals,
+      })
+    }
+
+    const accountInfo = await fcl.account(address)
+
+    return {
+      collectionIds,
+      initState,
       flowBalance,
       domains,
-      tokenBals: bals,
-    })
-
-    return { collectionIds, initState, flowBalance, domains, defaultDomain }
+      defaultDomain,
+      accountInfo,
+      bals,
+    }
   }
 
   return useQuery(`${USER_COLLECTION_QUERY}-${address}`, queryUserCollection)
@@ -191,4 +203,39 @@ export const useAccount = (address) => {
   }
 
   return useQuery(`${USER_ACCOUNT_QUERY}-${address}`, queryAccountInfo)
+}
+
+export const useNFTs = (address, limit = 10) => {
+  const query = async (config) => {
+    try {
+      if (address == null || address.length === 0) {
+        return []
+      }
+      const { pageParam = 1 } = config
+      const offset = (pageParam - 1) * limit
+      const res = await queryNFTs(address, limit, offset)
+      const { data = {} } = res
+      const { nfts = [], nftCount = 0 } = data
+
+      if (data && nfts.length > 0) {
+        return {
+          nfts: nfts,
+          nextPage: pageParam + 1,
+          totalPages: Math.ceil(nftCount / limit),
+        }
+      } else {
+        return {}
+      }
+    } catch (error) {
+      console.log(error)
+      return {}
+    }
+  }
+
+  return useInfiniteQuery(`${GET_FLOW_NFTs}`, query, {
+    getNextPageParam: (lastPage, pages) => {
+      if (lastPage.nextPage <= lastPage.totalPages) return lastPage.nextPage
+      return undefined
+    },
+  })
 }

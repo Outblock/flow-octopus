@@ -1,3 +1,14 @@
 {
-  
+    "connect.tip": "Connect wallet",
+    "deposit": "Deposit",
+    "cancel": "Cancel",
+    "withdraw": "Withdraw",
+    "select.token": "Chose your token",
+    "token": "Token",
+    "tokens": "Tokens",
+    "amount": "Amount",
+    "balance": "Balance",
+    "transfer": "Transfer",
+    "transfer.token": "Transfer {{token}} to your friend",
+    "to.placeholder": "Flowns domain name or Flow address"
 }

@@ -7,9 +7,11 @@ import {
   referAddr,
   getSupportTokenConfig,
   getGraffleUrl,
+  nftAPI,
 } from '../config/constants'
 import { isFlowAddr, getQuery } from '../utils'
 import { namehash } from '../utils/hash'
+import axios from 'axios'
 
 // multi
 
@@ -382,4 +384,14 @@ export const removeSubdomain = async (hash, subHash) => {
     fcl.arg(subHash, String),
   ])
   return res
+}
+
+export const queryNFTs = async (address, limit, offset) => {
+  const res = await axios.get(nftAPI, {
+    params: { address, limit, offset },
+    headers: {},
+  })
+  const { data } = res
+  console.log(data, 'nfts')
+  return data
 }

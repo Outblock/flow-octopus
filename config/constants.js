@@ -56,6 +56,10 @@ export const cfZoneId = process.env.NEXT_PUBLIC_CF_ZONE_ID
 export const privateKey = process.env.NEXT_PUBLIC_FLOWNS_PRIVATE_KEY
 export const publicKey = process.env.NEXT_PUBLIC_FLOWNS_PUBLIC_KEY
 
+export const nftAPI = `https://flow-api-lovat.vercel.app/api/nft/list?${
+  isTestnet ? 'network=testnet' : ''
+}`
+
 export const flownsAppUrl = isTestnet
   ? 'https://testnet.flowns.org'
   : 'https://flowns.org'
@@ -181,23 +185,11 @@ export const getSupportTokenConfig = () => {
         publicReceiverPath: getSupportTokenVaultPath('receiver')['FUSD'],
         storagePath: getSupportTokenVaultPath('private')['FUSD'],
       },
-      BLT: {
-        type: 'A.6e0797ac987005f5.BloctoToken.Vault',
-        publicBalPath: getSupportTokenVaultPath()['BLT'],
-        publicReceiverPath: getSupportTokenVaultPath('receiver')['BLT'],
-        storagePath: getSupportTokenVaultPath('private')['BLT'],
-      },
       USDC: {
         type: 'A.a983fecbed621163.FiatToken.Vault',
         publicBalPath: getSupportTokenVaultPath()['USDC'],
         publicReceiverPath: getSupportTokenVaultPath('receiver')['USDC'],
         storagePath: getSupportTokenVaultPath('private')['USDC'],
-      },
-      MY: {
-        type: 'A.40212f3e288efd03.MyToken.Vault',
-        publicBalPath: getSupportTokenVaultPath()['MY'],
-        publicReceiverPath: getSupportTokenVaultPath('receiver')['MY'],
-        storagePath: getSupportTokenVaultPath('private')['MY'],
       },
     }
   } else {
@@ -214,24 +206,19 @@ export const getSupportTokenConfig = () => {
         publicReceiverPath: getSupportTokenVaultPath('receiver')['FUSD'],
         storagePath: getSupportTokenVaultPath('private')['FUSD'],
       },
-      BLT: {
-        type: 'A.0f9df91c9121c460.BloctoToken.Vault',
-        publicBalPath: getSupportTokenVaultPath()['BLT'],
-        publicReceiverPath: getSupportTokenVaultPath('receiver')['BLT'],
-        storagePath: getSupportTokenVaultPath('private')['BLT'],
-      },
+      // BLT: {
+      //   type: 'A.0f9df91c9121c460.BloctoToken.Vault',
+      //   publicBalPath: getSupportTokenVaultPath()['BLT'],
+      //   publicReceiverPath: getSupportTokenVaultPath('receiver')['BLT'],
+      //   storagePath: getSupportTokenVaultPath('private')['BLT'],
+      // },
       USDC: {
         type: 'A.b19436aae4d94622.FiatToken.Vault',
         publicBalPath: getSupportTokenVaultPath()['USDC'],
         publicReceiverPath: getSupportTokenVaultPath('receiver')['USDC'],
         storagePath: getSupportTokenVaultPath('private')['USDC'],
       },
-      MY: {
-        type: 'A.348fe2042c8a70d8.MyToken.Vault',
-        publicBalPath: getSupportTokenVaultPath()['MY'],
-        publicReceiverPath: getSupportTokenVaultPath('receiver')['MY'],
-        storagePath: getSupportTokenVaultPath('private')['MY'],
-      },
+      //
     }
   }
   return tokenConfigs

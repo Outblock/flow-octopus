@@ -33,23 +33,13 @@ export default function Layout({ children }) {
         <title>Flowns</title>
       </Head>
       <main>
-        <Container w='100%' h='100%' maxW='1440px'>
+        <Container w="100%" h="100%" maxW="1440px">
           <Header />
-          {isPC && (
-            <Divider
-              h='1px'
-              pos='absolute'
-              top='144'
-              left='0'
-              w='100vw'
-              border='1px solid'
-              opacity='0.12'
-            />
-          )}
-          <Box py={[5, 5, 10]} pr={18}></Box>
+
+          <Box py={[2, 2, 4]} pr={18}></Box>
           {renderChildren()}
         </Container>
-        <TransferModal cb={refetch}/>
+        <TransferModal cb={refetch} />
       </main>
     </>
   )

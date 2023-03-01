@@ -50,7 +50,7 @@ export const fclinit = () => {
 
   initWalletConnect()
   setupFirebase()
-  console.log('initWalletConnect')
+  // console.log('initWalletConnect')
 }
 
 export const setupFirebase = () => {
@@ -396,7 +396,7 @@ export const conpareKeys = (a = {}, b = {}) => {
 
 
 export const algos2Raw = (algoStr) => {
-  
+
 }
 
 export const hashAlgo2Raw = (hashStr) => {

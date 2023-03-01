@@ -15,7 +15,10 @@ import {
   AccordionIcon,
   Tooltip,
   IconButton,
-  Badge,
+  Center,
+  Image,
+  SimpleGrid,
+  Button,
 } from '@chakra-ui/react'
 import { useTranslation } from 'next-i18next'
 import { BsArrowUpRight, BsCheck, BsFileEarmarkPlus } from 'react-icons/bs'
@@ -25,9 +28,17 @@ import { setTransferModalConf } from '../../stores/transferModal'
 import { changeDefault, removeDefault, initTokenVault } from '/api'
 import { toast } from '/utils'
 
-const Comp = ({ domains = [], bals = {}, show = [], cb }) => {
+const Comp = ({
+  domains = [],
+  bals = {},
+  show = [],
+  cb,
+  nftPages = [],
+  renderNFTsLoadingBtn = () => {},
+}) => {
   const { t } = useTranslation()
 
+  const defaultImg = `/assets/defaultNFT.jpeg`
   const domainNum = domains.length
   const vaultKeys = Object.keys(bals)
 
@@ -140,7 +151,7 @@ const Comp = ({ domains = [], bals = {}, show = [], cb }) => {
           <AccordionItem>
             <AccordionButton px={0}>
               <Box flex="1" textAlign="left">
-                {t('other.tokens')}
+                {t('tokens')}
               </Box>
               <AccordionIcon />
             </AccordionButton>
@@ -212,7 +223,43 @@ const Comp = ({ domains = [], bals = {}, show = [], cb }) => {
             </AccordionPanel>
           </AccordionItem>
         )}
+        <AccordionItem>
+          <AccordionButton px={0}>
+            <Box flex="1" textAlign="left">
+              {t('nfts')}
+            </Box>
+            <AccordionIcon />
+          </AccordionButton>
 
+          {nftPages.length > 0 && (
+            <AccordionPanel pb={4} px={0}>
+              <SimpleGrid spacing={2}>
+                {nftPages.map((page) => {
+                  const { nfts = [] } = page
+
+                  return nfts.map((nft, idx) => {
+                    const { name, thumbnail } = nft
+                    return (
+                      <>
+                        <Box w="180px" h="180px" p={2}>
+                          <Image
+                            w="100%"
+                            height="100%"
+                            borderRadius="10px"
+                            src={thumbnail}
+                            onError={(e) => (e.currentTarget.src = defaultImg)}
+                          />
+                          <Text textAlign="center">{name}</Text>
+                        </Box>
+                      </>
+                    )
+                  })
+                })}
+              </SimpleGrid>
+              {renderNFTsLoadingBtn()}
+            </AccordionPanel>
+          )}
+        </AccordionItem>
         {/* {domainNum >= 1 && (
           <AccordionItem>
             <AccordionButton px={0}>
