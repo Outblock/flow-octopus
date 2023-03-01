@@ -77,7 +77,6 @@ export default function Account() {
               {sharedAccount.map((addr, idx) => {
                 const accountInfo = data[addr]
                 const { pendingTrx } = accountInfo
-                console.log('pendingTrx ===>', pendingTrx)
                 const hasPending = pendingTrx && pendingTrx.tx
                 let keys = Object.keys(accountInfo)
                 keys = keys.splice(0, keys.length - 3)

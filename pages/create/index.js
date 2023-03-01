@@ -261,6 +261,7 @@ export default function Create() {
               <SliderThumb
                 fontSize="sm"
                 boxSize="32px"
+                // eslint-disable-next-line react/no-children-prop
                 children={values.creatorWeight}
               />
             </Slider>
@@ -493,6 +494,7 @@ export default function Create() {
               <SliderThumb
                 fontSize="sm"
                 boxSize="32px"
+                // eslint-disable-next-line react/no-children-prop
                 children={values.selectedWeight}
               />
             </Slider>
