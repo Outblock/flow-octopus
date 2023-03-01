@@ -138,7 +138,8 @@ export default function Account() {
         <Box>
           <Box>
             <Flex align="center">
-              {address} {isSharedAccount && <Icon m={2} color="green" as={FaUsers} />}
+              {address}{' '}
+              {isSharedAccount && <Icon m={2} color="green" as={FaUsers} />}
             </Flex>
             <Divider my={4} />
             <>
@@ -171,7 +172,7 @@ export default function Account() {
                 />
               </TabPanel>
               <TabPanel>
-                <Trxs datas={[]} />
+                <Trxs address={address} />
               </TabPanel>
               {/* <TabPanel>
                 <p>three!</p>

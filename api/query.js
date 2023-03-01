@@ -25,6 +25,7 @@ import {
   readSharedAccount,
 } from './index'
 import { namehash } from '../utils/hash'
+import { postQuery } from '../utils'
 
 export * from './queryClient'
 
@@ -36,6 +37,7 @@ const USER_ACCOUNT_QUERY = 'getUserAccount'
 const GET_FLOW_NFTs = 'getFLOWNFTs'
 const GET_SHARED_ACCOUNTS = 'getAccountLists'
 const GET_ACCOUNTS_INFO = 'getAccountInfo'
+const GET_ACCOUNT_TRXS = 'getAccountTrxs'
 
 export const getConnectedState = () => {
   const { appState = {} } = globalStore.useState('appState')
@@ -280,4 +282,56 @@ export const useSharedAccountInfo = (address) => {
   }
 
   return useQuery(`${GET_ACCOUNTS_INFO}-${address}`, query)
+}
+
+export const useTrxs = (address, limit = 10) => {
+  const query = async (config) => {
+    try {
+      if (address == null || address.length === 0) {
+        return []
+      }
+
+      console.log(config, 'config')
+      const { pageParam = '' } = config
+
+      const queryObj = {
+        operationName: 'AccountTransactionsQuery',
+        variables: {
+          address: address,
+          first: limit,
+        },
+        query:
+          'query AccountTransactionsQuery($address: ID!, $role: TransactionRole, $first: Int!, $after: ID) {\n  account(id: $address) {\n    transactions(first: $first, after: $after, role: $role) {\n      pageInfo {\n        ...PaginationInfoFragment\n        __typename\n      }\n      ...AccountTransactionTableFragment\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment PaginationInfoFragment on PageInfo {\n  hasNextPage\n  endCursor\n  __typename\n}\n\nfragment AccountTransactionTableFragment on TransactionConnection {\n  edges {\n    node {\n      hash\n      time\n      hasError\n      authorizers {\n        address\n        __typename\n      }\n      payer {\n        address\n        __typename\n      }\n      proposer {\n        address\n        __typename\n      }\n      contractInteractions {\n        id\n        __typename\n      }\n      status\n      __typename\n    }\n    __typename\n  }\n  __typename\n}\n',
+      }
+
+      if (pageParam && pageParam.length > 1) {
+        queryObj.variables.after = pageParam
+      }
+
+      const res = await postQuery(queryObj)
+      const { account = {} } = res
+      const { transactions = {} } = account
+      const { edges = [], pageInfo } = transactions
+      const { endCursor, hasNextPage } = pageInfo
+      console.log(edges, pageInfo)
+      if (transactions && edges.length > 0) {
+        return {
+          trxs: edges,
+          nextPage: endCursor,
+          totalPages: hasNextPage,
+        }
+      } else {
+        return {}
+      }
+    } catch (error) {
+      console.log(error)
+      return {}
+    }
+  }
+
+  return useInfiniteQuery(`${GET_ACCOUNT_TRXS}-${address}`, query, {
+    getNextPageParam: (lastPage, pages) => {
+      return lastPage.nextCursor
+    },
+  })
 }

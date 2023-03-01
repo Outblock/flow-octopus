@@ -58,7 +58,7 @@ const overrides = {
       fontWeight: 300,
     },
     desc: {
-      fontSize: '12px',
+      fontSize: '14px',
       fontWeight: 300,
       opacity: 0.8,
     },

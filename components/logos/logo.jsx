@@ -1,6 +1,6 @@
 import React from 'react'
 import Image from 'next/image'
-import { Center } from '@chakra-ui/react'
+import { Center, Text } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { useColorMode } from '@chakra-ui/react'
 
@@ -8,17 +8,17 @@ const Components = ({ children }) => {
   const { colorMode } = useColorMode()
   const router = useRouter()
 
-  const logo =
-    colorMode == 'light' ? '/assets/flow.svg' : '/assets/flow.svg'
+  const logo = '/assets/logo.svg'
   return (
-    <Center cursor='pointer' width={{ base: '98px', md: '180px' }}>
+    <Center cursor="pointer" maxW="220px">
       <Image
         src={logo}
-        width='100%'
-        height='100%'
-        alt='flowns'
+        width="35px"
+        height="35px"
+        alt="Octopus"
         onClick={() => router.push('/')}
-      ></Image>
+      />
+      <Text ml={2}>Octous</Text>
     </Center>
   )
 }

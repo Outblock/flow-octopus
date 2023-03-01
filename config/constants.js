@@ -56,6 +56,9 @@ export const cfZoneId = process.env.NEXT_PUBLIC_CF_ZONE_ID
 export const privateKey = process.env.NEXT_PUBLIC_FLOWNS_PRIVATE_KEY
 export const publicKey = process.env.NEXT_PUBLIC_FLOWNS_PUBLIC_KEY
 
+export const flowscanKey = process.env.NEXT_PUBLIC_FLOWSCAN_KEY
+export const flowscanUrl = process.env.NEXT_PUBLIC_FLOWSCAN
+
 export const nftAPI = `https://flow-api-lovat.vercel.app/api/nft/list?${
   isTestnet ? 'network=testnet' : ''
 }`

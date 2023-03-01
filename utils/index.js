@@ -24,6 +24,8 @@ import {
   network,
   discoveryEndpointUrl,
   rpcType,
+  flowscanKey,
+  flowscanUrl,
 } from '../config/constants'
 import { emojis } from './emojis'
 import emojiRegex from 'emoji-regex'
@@ -106,16 +108,17 @@ export const formatBalance = (amount = '0', decimal = 18) => {
   return num.toFixed(2)
 }
 
-// export const postQuery = async (query, params = {}) => {
-//   try {
-//     const url = graphQLURI || ''
-//     const req = await axios.post(url, { query, variables: params })
-//     const { data } = req
-//     return data.data
-//   } catch (error) {
-//     return {}
-//   }
-// }
+export const postQuery = async (queryObj) => {
+  try {
+    const url = `${flowscanUrl}?token=${flowscanKey}`
+    const res = await axios.post(url, queryObj)
+    const { data } = res
+    return data.data
+  } catch (error) {
+    console.log(error)
+    return {}
+  }
+}
 
 export const getQuery = async (url, params = {}, headers = {}) => {
   try {

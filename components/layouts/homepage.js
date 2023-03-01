@@ -19,42 +19,44 @@ import Footer from '../../components/homePage/footer'
 import Links from '../linkList'
 import { partners } from '../../config/constants'
 import { useTranslation } from 'next-i18next'
+import { useRouter } from 'next/router'
 
 export default function Layout({ children }) {
   fclinit()
   const { t } = useTranslation()
   const [isPC = true] = useMediaQuery('(min-width: 48em)')
   const { colorMode } = useColorMode()
+  const router = useRouter()
   const theme = useTheme()
-  const primary = colorMode === 'light' ? theme.colors.lightPrimary : theme.colors.primary
+  const primary =
+    colorMode === 'light' ? theme.colors.lightPrimary : theme.colors.primary
 
   return (
     <>
-     
       <Head>
-        <title>Flowns</title>
+        <title>Octopus</title>
       </Head>
       <main>
-        <Container w='100%' maxW='1440px' maxH='1600px'>
+        <Container w="100%" maxW="1440px" maxH="1600px">
           <Header />
           <Divider
-            h='1px'
-            pos='absolute'
+            h="1px"
+            pos="absolute"
             top={['98px', '98px', '144px']}
-            left='0'
-            w='100vw'
-            border='1px solid'
-            opacity='0.12'
+            left="0"
+            w="100vw"
+            border="1px solid"
+            opacity="0.12"
           />
           {children}
           <Divider
-            h='1px'
-            pos='absolute'
-            bottom='256'
-            left='0'
-            w='100vw'
-            border='1px solid'
-            opacity='0.12'
+            h="1px"
+            pos="absolute"
+            bottom="256"
+            left="0"
+            w="100vw"
+            border="1px solid"
+            opacity="0.12"
           />
           <Footer />
         </Container>

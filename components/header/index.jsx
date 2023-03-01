@@ -22,6 +22,7 @@ import {
   useDisclosure,
   Tooltip,
   Badge,
+  Button,
 } from '@chakra-ui/react'
 
 import { useTranslation } from 'next-i18next'
@@ -36,7 +37,6 @@ import { useUserCollection } from '../../api/query'
 import useCurrentUser from '../../hooks/currentUser'
 import Logo from '../logos/logo'
 import Navs from '../navs'
-import SwitchTheme from '../colorSwitch/'
 import { appNavLinks } from '../../config/constants'
 import { toast, ellipseAddress } from '../../utils'
 import accountStore from '../../stores/account'
@@ -138,7 +138,9 @@ const Components = ({ children }) => {
     return (
       <Center>
         {/* <SwitchTheme /> */}
-        <DashBtn
+        <Button
+          colorScheme="green"
+          borderRadius="full"
           mx={2}
           minW={{ base: '20px', md: '120px' }}
           h={{ base: '36px', md: '36px' }}
@@ -158,7 +160,7 @@ const Components = ({ children }) => {
           ) : (
             t('connect')
           )}
-        </DashBtn>
+        </Button>
         {isLogin && (
           <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
             <DrawerOverlay />
@@ -227,11 +229,12 @@ const Components = ({ children }) => {
               </DrawerBody>
 
               <DrawerFooter>
-                <DashBtn
+                <Button
                   size="full"
                   w="100%"
                   h="40px"
                   fontSize="20px"
+                  opacity={0.2}
                   onClick={() => {
                     fcl.logOut()
                     onClose()
@@ -239,7 +242,7 @@ const Components = ({ children }) => {
                   leftIcon={<Icon as={MdPowerSettingsNew} />}
                 >
                   {t('logout')}
-                </DashBtn>
+                </Button>
               </DrawerFooter>
             </DrawerContent>
           </Drawer>
@@ -258,7 +261,7 @@ const Components = ({ children }) => {
         p={[2, 2, 0]}
       >
         <Flex
-          w={['100%', '100%', '10%']}
+          w={['100%', '100%', '20%']}
           h={{ base: '38px', md: '144px' }}
           justify="space-between"
         >
