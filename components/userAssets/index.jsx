@@ -23,6 +23,8 @@ import {
 import { useTranslation } from 'next-i18next'
 import { BsArrowUpRight, BsCheck, BsFileEarmarkPlus } from 'react-icons/bs'
 
+import Empty from 'components/empty'
+
 import TokenLogo from '../tokenLogo'
 import { setTransferModalConf } from '../../stores/transferModal'
 import { changeDefault, removeDefault, initTokenVault } from '/api'
@@ -45,6 +47,7 @@ const Comp = ({
   const [loading, setLoading] = useState(false)
 
   const [tokenLoading, setTokenLoading] = useState(false)
+  const hasData = nftPages[0] && !!nftPages[0].hasOwnProperty('nfts')
 
   const handleSetDefault = async (name, isRemove = false) => {
     let defaultName = ''
@@ -231,34 +234,40 @@ const Comp = ({
             <AccordionIcon />
           </AccordionButton>
 
-          {nftPages.length > 0 && (
-            <AccordionPanel pb={4} px={0}>
-              <SimpleGrid spacing={2}>
-                {nftPages.map((page) => {
-                  const { nfts = [] } = page
+          <AccordionPanel pb={4} px={0}>
+            {!hasData ? (
+              <Empty tip={'Empty'} h="20vh" />
+            ) : (
+              <>
+                <SimpleGrid spacing={2}>
+                  {nftPages.map((page) => {
+                    const { nfts = [] } = page
 
-                  return nfts.map((nft, idx) => {
-                    const { name, thumbnail } = nft
-                    return (
-                      <>
-                        <Box w="180px" h="180px" p={2}>
-                          <Image
-                            w="100%"
-                            height="100%"
-                            borderRadius="10px"
-                            src={thumbnail}
-                            onError={(e) => (e.currentTarget.src = defaultImg)}
-                          />
-                          <Text textAlign="center">{name}</Text>
-                        </Box>
-                      </>
-                    )
-                  })
-                })}
-              </SimpleGrid>
-              {renderNFTsLoadingBtn()}
-            </AccordionPanel>
-          )}
+                    return nfts.map((nft, idx) => {
+                      const { name, thumbnail } = nft
+                      return (
+                        <>
+                          <Box w="180px" h="180px" p={2}>
+                            <Image
+                              w="100%"
+                              height="100%"
+                              borderRadius="10px"
+                              src={thumbnail}
+                              onError={(e) =>
+                                (e.currentTarget.src = defaultImg)
+                              }
+                            />
+                            <Text textAlign="center">{name}</Text>
+                          </Box>
+                        </>
+                      )
+                    })
+                  })}
+                </SimpleGrid>
+                {renderNFTsLoadingBtn()}
+              </>
+            )}
+          </AccordionPanel>
         </AccordionItem>
         {/* {domainNum >= 1 && (
           <AccordionItem>

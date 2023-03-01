@@ -9,10 +9,10 @@ import {
   getGraffleUrl,
   nftAPI,
 } from '../config/constants'
-import { isFlowAddr, getQuery } from '../utils'
+import { isFlowAddr, getQuery, db } from '../utils'
 import { namehash } from '../utils/hash'
 import axios from 'axios'
-
+import { doc, getDoc } from 'firebase/firestore'
 // multi
 
 export const createAccount = async (
@@ -392,6 +392,31 @@ export const queryNFTs = async (address, limit, offset) => {
     headers: {},
   })
   const { data } = res
-  console.log(data, 'nfts')
+  return data
+}
+
+export const readSharedAccounts = async (address) => {
+  const docRef = doc(db, 'accounts', address)
+  const docSnap = await getDoc(docRef)
+  if (!docSnap.exists()) {
+    console.log('Not exists')
+    return {}
+  }
+  const data = docSnap.data()
+  console.log('data ->', data)
+
+  return data
+}
+
+export const readAccount = async (address) => {
+  const docRef = doc(db, 'accounts_creation', address)
+  const docSnap = await getDoc(docRef)
+  if (!docSnap.exists()) {
+    console.log('Not exists')
+    return {}
+  }
+  const data = docSnap.data()
+  console.log('data ->', data)
+
   return data
 }

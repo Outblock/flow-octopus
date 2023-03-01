@@ -80,23 +80,11 @@ export default function Layout({ children }) {
         <title>Flow octopus</title>
       </Head>
       <main>
-        <Container w="100%" h="100%" maxW="1440px">
+        <Container px={['5%', '15%']} w="100%" h="100%" maxW="1440px">
           <Header />
-          <Box px={'20vw'}>
-            {isPC && (
-              <Divider
-                h="1px"
-                pos="absolute"
-                top="144"
-                left="0"
-                w="100vw"
-                border="1px solid"
-                opacity="0.12"
-              />
-            )}
-            <Box py={[5, 5, 10]} pr={18}></Box>
-            {addr ? renderChildren() : renderConnectPanel()}
-          </Box>
+
+          <Box py={[5, 5, 10]} pr={18}></Box>
+          {addr ? renderChildren() : renderConnectPanel()}
         </Container>
       </main>
     </>

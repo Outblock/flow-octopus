@@ -33,10 +33,10 @@ export default function Layout({ children }) {
         <title>Flow octopus</title>
       </Head>
       <main>
-        <Container w="100%" h="100%" maxW="1440px">
+        <Container px={['5%', '15%']} w="100%" h="100%" maxW="1440px">
           <Header />
 
-          <Box py={[2, 2, 4]} pr={18}></Box>
+          {/* <Box py={[2, 2, 4]} pr={18}></Box> */}
           {renderChildren()}
         </Container>
         <TransferModal cb={refetch} />

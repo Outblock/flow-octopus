@@ -20,7 +20,8 @@ import {
   queryGraffle,
   getDomainDeprecatedInfo,
   getUserDefaultDomain,
-  queryNFTs
+  queryNFTs,
+  readSharedAccounts,
 } from './index'
 import { namehash } from '../utils/hash'
 
@@ -32,6 +33,7 @@ const DOMAIN_HISTORY_QUERY = 'getDomainHistory'
 const USER_COLLECTION_QUERY = 'getUserCollection'
 const USER_ACCOUNT_QUERY = 'getUserAccount'
 const GET_FLOW_NFTs = 'getFLOWNFTs'
+const GET_SHARED_ACCOUNTS = 'getAccountLists'
 
 export const getConnectedState = () => {
   const { appState = {} } = globalStore.useState('appState')
@@ -108,16 +110,17 @@ export const useUserCollection = (address = '', flag = true) => {
     }
     const flowBalance = await queryFlowBalence(address)
     const bals = await queryBals(address)
+    const accountInfo = await fcl.account(address)
+
     if (flag) {
       accountStore.setState({
         domainIds: collectionIds,
         flowBalance,
         domains,
         tokenBals: bals,
+        accountInfo,
       })
     }
-
-    const accountInfo = await fcl.account(address)
 
     return {
       collectionIds,
@@ -238,4 +241,24 @@ export const useNFTs = (address, limit = 10) => {
       return undefined
     },
   })
+}
+
+export const useSharedAccoounts = (address) => {
+  const query = async () => {
+    try {
+      if (address == null || address.length === 0) {
+        return {}
+      }
+      const res = await readSharedAccounts(address)
+
+      console.log(res)
+
+      return res
+    } catch (error) {
+      console.log(error)
+      return {}
+    }
+  }
+
+  return useQuery(`${GET_SHARED_ACCOUNTS}-${address}`, query)
 }

@@ -5,11 +5,10 @@ import ReactGA from 'react-ga'
 import { useRouter } from 'next/router'
 import * as fcl from '@onflow/fcl'
 import { MinusIcon } from '@chakra-ui/icons'
-import { getFirestore } from "firebase/firestore";
-import { doc, setDoc } from "firebase/firestore"; 
+import { getFirestore } from 'firebase/firestore'
+import { doc, setDoc } from 'firebase/firestore'
 import {
   Box,
-  Stack,
   Flex,
   InputGroup,
   InputRightElement,
@@ -33,8 +32,6 @@ import {
   NumberInputControl,
   SubmitButton,
   InputControl,
-  CheckboxSingleControl,
-  SwitchControl,
 } from 'formik-chakra-ui'
 import { Formik } from 'formik'
 import Layout from '../../components/layouts/app'
@@ -43,7 +40,6 @@ import accountStore from '../../stores/account'
 import { useAccount } from 'api/query'
 import { ellipseStr, isFlowAddr, db } from 'utils'
 import { createAccount } from 'api/index'
-import { transactions } from '../../api/transactions';
 
 export default function Create() {
   const router = useRouter()
@@ -112,7 +108,7 @@ export default function Create() {
           publicKey,
           hashAlgo,
           signAlgo,
-          weight: Number(creatorWeight)
+          weight: Number(creatorWeight),
         },
       ]
 
@@ -128,14 +124,19 @@ export default function Create() {
           publicKey,
           hashAlgo,
           signAlgo,
-          weight: Number(weight)
+          weight: Number(weight),
         })
       })
 
       console.log(pubKeys, signAlgos, hashAlgos, weights)
-      const {trxId, txStatus} = await createAccount(pubKeys, signAlgos, hashAlgos, weights)
+      const { trxId, txStatus } = await createAccount(
+        pubKeys,
+        signAlgos,
+        hashAlgos,
+        weights,
+      )
       await writeToFirebase(trxId, txStatus, accounts)
-      // todo add account and emit event on database
+
       setLoading(false)
     } catch (error) {
       setLoading(false)
@@ -143,9 +144,11 @@ export default function Create() {
   }
 
   const writeToFirebase = async (trxId, txStatus, accounts) => {
-    const filter = txStatus.events.filter(event => event.type === "flow.AccountCreated")
+    const filter = txStatus.events.filter(
+      (event) => event.type === 'flow.AccountCreated',
+    )
     const created_address = filter[0].data.address
-    const tx = await fcl.send([fcl.getTransaction(trxId)]).then(fcl.decode);;
+    const tx = await fcl.send([fcl.getTransaction(trxId)]).then(fcl.decode)
     const obj = {
       id: trxId,
       address: created_address,
@@ -153,7 +156,7 @@ export default function Create() {
       transaction: tx,
       result: txStatus,
     }
-    await setDoc(doc(db, "accounts_creation", trxId), obj);
+    await setDoc(doc(db, 'accounts_creation', trxId), obj)
   }
 
   const renderForm = () => {

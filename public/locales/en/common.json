@@ -10,5 +10,6 @@
     "balance": "Balance",
     "transfer": "Transfer",
     "transfer.token": "Transfer {{token}} to your friend",
-    "to.placeholder": "Flowns domain name or Flow address"
+    "to.placeholder": "Flowns domain name or Flow address",
+    "shared.accounts": "Shared accounts"
 }

@@ -16,9 +16,12 @@ import {
   Divider,
   Center,
   Button,
+  List,
 } from '@chakra-ui/react'
 
-import Layout from '../../components/layouts/appBase'
+import Layout from 'components/layouts/appBase'
+import Empty from 'components/empty'
+
 import { gaCode } from '../../config/constants'
 import { useUserCollection, useNFTs } from '../../api/query'
 import accountStore from '../../stores/account'
@@ -42,8 +45,10 @@ export default function Account() {
     flowBalance = 0,
     defaultDomain,
     bals = {},
-    accountInfo,
+    accountInfo = {},
   } = data
+
+  const { keys = [] } = accountInfo
 
   const {
     data: nftData = {},
@@ -51,7 +56,7 @@ export default function Account() {
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-  } = useNFTs('0x86e7fc87ce4aca8b') // TODO
+  } = useNFTs(address) // TODO
 
   const { pages = [] } = nftData
   const hasData = pages[0] && !!pages[0].hasOwnProperty('nfts')
@@ -123,6 +128,7 @@ export default function Account() {
           <Box>
             <Text>{address}</Text>
             <Divider my={4} />
+            <List></List>
           </Box>
           <Tabs>
             <TabList>
