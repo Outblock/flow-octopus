@@ -331,7 +331,6 @@ export const transferTokenWithSharedAccount = async (token, amount, to, userAddr
         sharedAddress
       )
       return res
-
     } catch (error) {
       console.log(error)
       return null
@@ -560,7 +559,15 @@ export const sendTransaction = async (cadence, args, userAddress, sharedAccountA
   }, {merge: true})
 
   if (weight >= 1000) {
-    await sendRawTransaction(tx)
+    try {
+      await sendRawTransaction(tx)
+      return true
+    } catch (error) {
+      console.log('error sending transaction', error)
+      return false
+    }
+  } else {
+    return true
   }
 };
 
