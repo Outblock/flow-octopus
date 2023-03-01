@@ -104,6 +104,7 @@ export default function Create() {
       const res = await createAccount(pubKeys, signAlgos, hashAlgos, weights)
 
       console.log(res)
+      // todo add account and emit event on database
       setLoading(false)
     } catch (error) {
       setLoading(false)
