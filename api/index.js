@@ -408,8 +408,8 @@ export const readSharedAccounts = async (address) => {
   return data
 }
 
-export const readAccount = async (address) => {
-  const docRef = doc(db, 'accounts_creation', address)
+export const readSharedAccount = async (address) => {
+  const docRef = doc(db, 'shared_accounts', address)
   const docSnap = await getDoc(docRef)
   if (!docSnap.exists()) {
     console.log('Not exists')

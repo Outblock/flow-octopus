@@ -19,6 +19,7 @@ import {
 
 import Layout from 'components/layouts/app'
 import LoadingPanel from 'components/loadingPanel'
+import Keys from 'components/keys'
 import Empty from 'components/empty'
 import { ellipseStr } from 'utils'
 
@@ -28,14 +29,17 @@ import { useSharedAccoounts } from 'api/query'
 
 export default function Account() {
   const router = useRouter()
-  const { user, accountInfo } = accountStore.useState('user', 'accountInfo')
+  const { user, accountInfo = {} } = accountStore.useState(
+    'user',
+    'accountInfo',
+  )
   const { t } = useTranslation()
   useEffect(() => {
     ReactGA.initialize(gaCode)
     ReactGA.pageview(window.location.pathname)
   }, [])
 
-  console.log(accountInfo, 'accountInfo')
+  const { keys = [] } = accountInfo
   // useEffect(() => {
   //   if (user.addr) {
   //     router.push(`/account/${user.addr}`)
@@ -54,6 +58,7 @@ export default function Account() {
       >
         {user.addr}
       </Text>
+      <Keys keys={keys} m={4} />
       <Divider my={4} />
       <Text mb={4} textStyle="h1">
         {t('shared.accounts')}

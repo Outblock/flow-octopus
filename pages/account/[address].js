@@ -3,6 +3,7 @@ import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import ReactGA from 'react-ga'
 import { useRouter } from 'next/router'
+import { FaUsers } from 'react-icons/fa'
 
 import {
   Box,
@@ -17,18 +18,24 @@ import {
   Center,
   Button,
   List,
+  Icon,
 } from '@chakra-ui/react'
 
 import Layout from 'components/layouts/appBase'
 import Empty from 'components/empty'
 
 import { gaCode } from '../../config/constants'
-import { useUserCollection, useNFTs } from '../../api/query'
+import {
+  useUserCollection,
+  useNFTs,
+  useSharedAccountInfo,
+} from '../../api/query'
 import accountStore from '../../stores/account'
 
 import LoadingPanel from 'components/loadingPanel'
 import UserAssets from 'components/userAssets'
 import Trxs from 'components/trxs'
+import { renderKey } from 'components/keys'
 
 export default function Account() {
   const router = useRouter()
@@ -48,7 +55,12 @@ export default function Account() {
     accountInfo = {},
   } = data
 
-  const { keys = [] } = accountInfo
+  let { keys = [] } = accountInfo
+
+  const { data: accountData = {} } = useSharedAccountInfo(address)
+
+  const { accounts = [] } = accountData
+  const isSharedAccount = accounts.length > 0
 
   const {
     data: nftData = {},
@@ -61,9 +73,8 @@ export default function Account() {
   const { pages = [] } = nftData
   const hasData = pages[0] && !!pages[0].hasOwnProperty('nfts')
 
-  const vaultKeys = Object.keys(bals)
+  // const vaultKeys = Object.keys(bals)
 
-  // const hasDomain = domains.length > 0
   useEffect(() => {
     ReactGA.initialize(gaCode)
     ReactGA.pageview(window.location.pathname)
@@ -126,9 +137,24 @@ export default function Account() {
       ) : (
         <Box>
           <Box>
-            <Text>{address}</Text>
+            <Flex align="center">
+              {address} <Icon m={2} color="green" as={FaUsers} />
+            </Flex>
             <Divider my={4} />
-            <List></List>
+            <>
+              {accounts.map((addr, idx) => {
+                const accKeys = accountData[addr]
+                return (
+                  <>
+                    {accKeys.map((key, i) => {
+                      // const { hashAlgo, signAlgo, publicKey, index, wight } =
+                      //   key
+                      return renderKey(key)
+                    })}
+                  </>
+                )
+              })}
+            </>
           </Box>
           <Tabs>
             <TabList>

@@ -11,5 +11,7 @@
     "transfer": "Transfer",
     "transfer.token": "Transfer {{token}} to your friend",
     "to.placeholder": "Flowns domain name or Flow address",
-    "shared.accounts": "Shared accounts"
+    "shared.accounts": "Shared accounts",
+    "account": "Account",
+    "create": "Create"
 }

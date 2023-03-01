@@ -22,6 +22,7 @@ import {
   getUserDefaultDomain,
   queryNFTs,
   readSharedAccounts,
+  readSharedAccount,
 } from './index'
 import { namehash } from '../utils/hash'
 
@@ -34,6 +35,7 @@ const USER_COLLECTION_QUERY = 'getUserCollection'
 const USER_ACCOUNT_QUERY = 'getUserAccount'
 const GET_FLOW_NFTs = 'getFLOWNFTs'
 const GET_SHARED_ACCOUNTS = 'getAccountLists'
+const GET_ACCOUNTS_INFO = 'getAccountInfo'
 
 export const getConnectedState = () => {
   const { appState = {} } = globalStore.useState('appState')
@@ -250,6 +252,23 @@ export const useSharedAccoounts = (address) => {
         return {}
       }
       const res = await readSharedAccounts(address)
+      return res
+    } catch (error) {
+      console.log(error)
+      return {}
+    }
+  }
+
+  return useQuery(`${GET_SHARED_ACCOUNTS}-${address}`, query)
+}
+
+export const useSharedAccountInfo = (address) => {
+  const query = async () => {
+    try {
+      if (address == null || address.length === 0) {
+        return {}
+      }
+      const res = await readSharedAccount(address)
 
       console.log(res)
 
@@ -260,5 +279,5 @@ export const useSharedAccoounts = (address) => {
     }
   }
 
-  return useQuery(`${GET_SHARED_ACCOUNTS}-${address}`, query)
+  return useQuery(`${GET_ACCOUNTS_INFO}-${address}`, query)
 }
