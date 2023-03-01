@@ -10,9 +10,11 @@ const Components = ({ children }) => {
 
   const logo = '/assets/logo.svg'
   return (
-    <Center cursor="pointer" maxW="220px">
+    <Center cursor="pointer" maxW="240px">
       <Image
         src={logo}
+        minW="35px"
+        minH="35px"
         width="35px"
         height="35px"
         alt="Octopus"
