@@ -84,7 +84,7 @@ export default function Create() {
       setLoading(true)
       const { creatorKeyStr, creatorWeight } = values
       const creatorKeyInfo = JSON.parse(creatorKeyStr)
-      const { publicKey, hashAlgo, signAlgo } = creatorKeyInfo
+      const { publicKey, hashAlgo, signAlgo, index } = creatorKeyInfo
 
       const pubKeys = [publicKey]
       const signAlgos = [signAlgo]
@@ -92,7 +92,7 @@ export default function Create() {
       const weights = [Number(creatorWeight).toFixed(2)]
 
       addtionKeys.map((key) => {
-        const { publicKey, signAlgo, hashAlgo, weight } = key
+        const { publicKey, signAlgo, hashAlgo, weight, index } = key
         pubKeys.push(publicKey)
         signAlgos.push(signAlgo)
         hashAlgos.push(hashAlgo)
@@ -315,6 +315,7 @@ export default function Create() {
                       hashAlgoString,
                       signAlgo,
                       hashAlgo,
+                      index,
                     } = selectKeyInfo
                     let existKey = false
                     let existAddr = false
@@ -349,6 +350,7 @@ export default function Create() {
                         hashAlgo,
                         weight: selectedWeight,
                         address: values.address,
+                        index,
                       },
                     ])
                   }}
