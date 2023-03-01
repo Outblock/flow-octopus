@@ -565,6 +565,8 @@ export const sendTransaction = async (cadence, args, userAddress, sharedAccountA
     } catch (error) {
       console.log('error sending transaction', error)
       return false
+    } finally {
+      await deleteDoc(docRef)
     }
   } else {
     return true
