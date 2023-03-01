@@ -177,7 +177,7 @@ export default function Create() {
                 name={'creatorKeyStr'}
                 label={
                   <Flex mb={2} mr={4}>
-                    <Text>{t('you.pubKey')}</Text>
+                    <Text>{t('you.publickey')}</Text>
                   </Flex>
                 }
                 // onChange={(e) => {
