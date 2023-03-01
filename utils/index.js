@@ -374,3 +374,12 @@ export const conpareKeys = (a = {}, b = {}) => {
 
   return key
 }
+
+
+export const algos2Raw = (algoStr) => {
+  
+}
+
+export const hashAlgo2Raw = (hashStr) => {
+  
+}

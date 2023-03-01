@@ -32,12 +32,16 @@ export default function Layout({ children }) {
   const [isPC = true] = useMediaQuery('(min-width: 48em)')
   const { colorMode } = useColorMode()
   const theme = useTheme()
-  const primary = colorMode === 'light' ? theme.colors.lightPrimary : theme.colors.primary
+  const primary =
+    colorMode === 'light' ? theme.colors.lightPrimary : theme.colors.primary
   const { user = {} } = accountStore.useState('user')
   const { addr = '' } = user
 
-  const { data = {}, refetch, isLoading: fetchLoading } = useUserCollection(addr)
-  const { collectionIds = [], initState = false } = data
+  const {
+    data = {},
+    refetch,
+    isLoading: fetchLoading,
+  } = useUserCollection(addr)
 
   const [loading, setLoading] = useState(false)
 
@@ -67,36 +71,7 @@ export default function Layout({ children }) {
 
   const renderChildren = () => {
     // console.log(initState)
-    if (initState) {
-      return <Box>{children}</Box>
-    } else {
-      return (
-        <>
-          {fetchLoading ? (
-            <LoadingPanel />
-          ) : (
-            <Center>
-              <Button
-                mx={2}
-                w={{ base: '240px', md: '240px' }}
-                h={{ base: '36px', md: '36px' }}
-                variant='ghost'
-                border='1px'
-                borderStyle='dashed'
-                isLoading={loading}
-                loadingText={t('init.loading')}
-                borderColor={primary}
-                textColor={primary}
-                onClick={handleInit}
-                spinner={<Spinner type='dots' />}
-              >
-                {t('init.collection')}
-              </Button>
-            </Center>
-          )}{' '}
-        </>
-      )
-    }
+    return <Box>{children}</Box>
   }
 
   return (
@@ -105,21 +80,23 @@ export default function Layout({ children }) {
         <title>Flowns</title>
       </Head>
       <main>
-        <Container w='100%' h='100%' maxW='1440px'>
+        <Container w="100%" h="100%" maxW="1440px">
           <Header />
-          {isPC && (
-            <Divider
-              h='1px'
-              pos='absolute'
-              top='144'
-              left='0'
-              w='100vw'
-              border='1px solid'
-              opacity='0.12'
-            />
-          )}
-          <Box py={[5, 5, 10]} pr={18}></Box>
-          {addr ? renderChildren() : renderConnectPanel()}
+          <Box px={'20vw'}>
+            {isPC && (
+              <Divider
+                h="1px"
+                pos="absolute"
+                top="144"
+                left="0"
+                w="100vw"
+                border="1px solid"
+                opacity="0.12"
+              />
+            )}
+            <Box py={[5, 5, 10]} pr={18}></Box>
+            {addr ? renderChildren() : renderConnectPanel()}
+          </Box>
         </Container>
       </main>
     </>

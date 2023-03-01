@@ -1,6 +1,7 @@
 import * as fcl from '@onflow/fcl'
 import { sendTrx } from '../utils'
 import { getSupportTokenConfig, network } from '../config/constants'
+
 const register_domain = fcl.cdc`
 import Flowns from 0xFlowns
 import Domains from 0xDomains
@@ -670,6 +671,28 @@ transaction(nameHashs: [String], duration: UFix64, refer: Address) {
 }
  `
 
+const create_account = fcl.cdc`
+import Crypto
+
+transaction(publicKeys: [String], signatureAlgorithms: [UInt8], hashAlgorithms: [UInt8], weights: [UFix64]) {
+    prepare(signer: AuthAccount) {
+      let account = AuthAccount(payer: signer)
+
+      for idx, publicKey in publicKeys {
+        let key = PublicKey(
+            publicKey: publicKey.decodeHex(),
+            signatureAlgorithm: SignatureAlgorithm(rawValue: signatureAlgorithms[idx])!
+        )
+
+        account.keys.add(
+            publicKey: key,
+            hashAlgorithm: HashAlgorithm(rawValue: hashAlgorithms[idx])!,
+            weight: weights[idx]
+        )
+      }
+    }   
+}`
+
 export const transactions = {
   register_domain,
   register_domain_with_fusd,
@@ -696,6 +719,7 @@ export const transactions = {
   init_ft_token,
   renew_domain_with_hash,
   batch_renew_domain_with_hash,
+  create_account,
 }
 
 export const buildAndSendTrx = async (key, args = [], opt = {}) => {

@@ -181,7 +181,7 @@ export const useAccount = (address) => {
   const queryAccountInfo = async () => {
     try {
       const account = await fcl.account(address)
-      console.log(account)
+      // console.log(account)
       // console.log(history, parentName)
       return account
     } catch (error) {

@@ -1,5 +1,5 @@
 import * as fcl from '@onflow/fcl'
-import { UInt64, Address, String, UFix64, Array } from '@onflow/types'
+import { UInt64, Address, String, UFix64, Array, UInt8 } from '@onflow/types'
 
 import { buildAndExecScript } from './scripts'
 import { buildAndSendTrx } from './transactions'
@@ -10,6 +10,25 @@ import {
 } from '../config/constants'
 import { isFlowAddr, getQuery } from '../utils'
 import { namehash } from '../utils/hash'
+
+// multi
+
+export const createAccount = async (
+  pubKeys,
+  signatureAlgorithms,
+  hashAlgorithms,
+  weights,
+) => {
+  const res = await buildAndSendTrx('create_account', [
+    fcl.arg(pubKeys, Array(String)),
+    fcl.arg(signatureAlgorithms, Array(UInt8)),
+    fcl.arg(hashAlgorithms, Array(UInt8)),
+    fcl.arg(weights, Array(UFix64)),
+  ])
+  return res
+}
+
+//
 
 export const queryGraffle = async (params) => {
   let url = getGraffleUrl()
