@@ -14,8 +14,6 @@ import {
   Link,
 } from '@chakra-ui/react'
 import { fclinit } from '../../utils'
-import Header from '../../components/homePage/header'
-import Footer from '../../components/homePage/footer'
 import Links from '../linkList'
 import { partners } from '../../config/constants'
 import { useTranslation } from 'next-i18next'
@@ -38,7 +36,6 @@ export default function Layout({ children }) {
       </Head>
       <main>
         <Container w="100%" maxW="1440px" maxH="1600px">
-          <Header />
           <Divider
             h="1px"
             pos="absolute"
@@ -58,7 +55,6 @@ export default function Layout({ children }) {
             border="1px solid"
             opacity="0.12"
           />
-          <Footer />
         </Container>
         {/* <Center pos='fixed' bottom={0} w='100%' h='48px' bgColor={primary}>
           <Flex w='100%' p={2} alignItems='center' overflowX='scroll'>

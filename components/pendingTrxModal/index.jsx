@@ -46,16 +46,30 @@ export default function Comp(props) {
   }
 
   const handleSign = async () => {
-    console.log('pendingTrx =>', pendingTrx)
-    const res = await continueSignTx(pendingTrx.tx.payer, currentAddr)
-    console.log(res, '=====')
-    if (res == true) {
+    try {
+      setLoading(true)
+      console.log('pendingTrx =>', pendingTrx)
+      const res = await continueSignTx(pendingTrx.tx.payer, currentAddr)
+      console.log(res, '=====')
+      if (res == true) {
+        toast({
+          title: t(`sign.transfer.success`),
+          status: 'success',
+        })
+      } else {
+        toast({
+          title: t(`sign.transfer.failed`),
+          status: 'success',
+        })
+      }
+      trxStore.setState({ show: false, pendingTrx: {} })
+    } catch (e) {
+      console.log(e)
       toast({
-        title: t(`sign.transfer.success`),
+        title: t(`sign.transfer.failed`),
         status: 'success',
       })
     }
-    trxStore.setState({ show: false, pendingTrx: {} })
   }
 
   return (

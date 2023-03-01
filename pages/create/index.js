@@ -1,3 +1,4 @@
+/* eslint-disable  */
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
@@ -256,6 +257,7 @@ export default function Create() {
               <SliderTrack>
                 <SliderFilledTrack />
               </SliderTrack>
+              
               <SliderThumb
                 fontSize="sm"
                 boxSize="32px"

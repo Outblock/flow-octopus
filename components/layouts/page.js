@@ -3,7 +3,6 @@ import { Container, Divider, Text, Box, useMediaQuery } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { fclinit } from '../../utils'
 
-import Header from '../../components/homePage/header'
 import { camelize } from '../../utils'
 
 export default function Layout({ children }) {
@@ -20,7 +19,6 @@ export default function Layout({ children }) {
       </Head>
       <main>
         <Container w='100%' h='100%' maxW='1440px'>
-          <Header />
           {isPC && (
             <Divider
               h='1px'

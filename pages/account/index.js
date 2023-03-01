@@ -82,7 +82,7 @@ export default function Account() {
                 let keys = Object.keys(accountInfo)
                 keys = keys.splice(0, keys.length - 3)
                 return (
-                  <AccordionItem>
+                  <AccordionItem key={idx}>
                     <AccordionButton>
                       <Flex
                         flex={1}
