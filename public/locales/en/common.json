@@ -23,6 +23,7 @@
     "weight.exceed": "Weight exceed",
     "confirm.create": "Confirm account info",
     "confirm": "Confirm",
+    "pending.trx": "Trx pending",
     "single.weight.warning": "A single key weighs too much",
     "single.weight.warning.desc": "Find a single key with a weight equal to 1000, which makes multi-signature wallets useless",
     "weight.not.enough.desc": "The total weight of the keys are less than 1000, which will cause the multi-signature account to be unavailable. Please adjust the weight and reconfirm.",

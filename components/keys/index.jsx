@@ -58,8 +58,6 @@ export default function Comp(props) {
   return (
     <Stack {...styles} {...rest}>
       {keys.map((key, idx) => {
-        console.log(key, '======')
-
         return renderKey(key)
       })}
     </Stack>

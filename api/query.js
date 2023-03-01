@@ -23,6 +23,7 @@ import {
   queryNFTs,
   readSharedAccounts,
   readSharedAccount,
+  readPendingTrx,
 } from './index'
 import { namehash } from '../utils/hash'
 import { postQuery } from '../utils'
@@ -254,6 +255,15 @@ export const useSharedAccoounts = (address) => {
         return {}
       }
       const res = await readSharedAccounts(address)
+      const { sharedAccount = [] } = res
+      const reqs = sharedAccount.map((acc) => {
+        return readPendingTrx(acc)
+      })
+      const pendingTrxs = await Promise.all(reqs)
+
+      sharedAccount.map((acc, idx) => {
+        res[acc].pendingTrx = pendingTrxs[idx]
+      })
       return res
     } catch (error) {
       console.log(error)

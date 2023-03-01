@@ -21,6 +21,7 @@ import accountStore from '../../stores/account'
 import { useUserCollection } from '../../api/query'
 import { initDomainCollection } from '../../api'
 import { toast } from '../../utils'
+import PendingTrxModal from 'components/pendingTrxModal'
 
 export default function Layout({ children }) {
   fclinit()
@@ -86,6 +87,7 @@ export default function Layout({ children }) {
           <Box py={[5, 5, 10]} pr={18}></Box>
           {addr ? renderChildren() : renderConnectPanel()}
         </Container>
+        <PendingTrxModal />
       </main>
     </>
   )

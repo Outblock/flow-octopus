@@ -15,7 +15,9 @@ import {
   AccordionButton,
   AccordionPanel,
   AccordionIcon,
+  IconButton,
 } from '@chakra-ui/react'
+import { MdOutlinePending } from 'react-icons/md'
 
 import Layout from 'components/layouts/app'
 import LoadingPanel from 'components/loadingPanel'
@@ -26,6 +28,7 @@ import { ellipseStr } from 'utils'
 import { gaCode } from '../../config/constants'
 import accountStore from '../../stores/account'
 import { useSharedAccoounts } from 'api/query'
+import trxStore from 'stores/trx'
 
 export default function Account() {
   const router = useRouter()
@@ -34,12 +37,14 @@ export default function Account() {
     'accountInfo',
   )
   const { t } = useTranslation()
+
   useEffect(() => {
     ReactGA.initialize(gaCode)
     ReactGA.pageview(window.location.pathname)
   }, [])
 
   const { keys = [] } = accountInfo
+  const currentAddr = user.addr
   // useEffect(() => {
   //   if (user.addr) {
   //     router.push(`/account/${user.addr}`)
@@ -71,12 +76,22 @@ export default function Account() {
             <Accordion>
               {sharedAccount.map((addr, idx) => {
                 const accountInfo = data[addr]
+                const { pendingTrx } = accountInfo
+                const hasPending =
+                  pendingTrx &&
+                  pendingTrx.signedAccount &&
+                  pendingTrx.signedAccount.indexOf(currentAddr) == -1
                 let keys = Object.keys(accountInfo)
-                keys = keys.splice(0, keys.length - 2)
+                keys = keys.splice(0, keys.length - 3)
                 return (
                   <AccordionItem>
                     <AccordionButton>
-                      <Box as="span" flex="1" textAlign="left">
+                      <Flex
+                        flex={1}
+                        textAlign="left"
+                        align="center"
+                        justify="space-between"
+                      >
                         <Text
                           fontStyle="italic"
                           textDecoration="underline"
@@ -85,7 +100,20 @@ export default function Account() {
                         >
                           {addr}
                         </Text>
-                      </Box>
+                        {!hasPending && (
+                          <Flex mx={8} align="center" justify="space-between">
+                            <IconButton
+                              colorScheme="teal"
+                              size="sm"
+                              icon={<MdOutlinePending />}
+                              onClick={() =>
+                                trxStore.setState({ show: true, pendingTrx })
+                              }
+                            />
+                            <Text ml={2}>{t('pending.trx')}</Text>
+                          </Flex>
+                        )}
+                      </Flex>
 
                       <AccordionIcon />
                     </AccordionButton>

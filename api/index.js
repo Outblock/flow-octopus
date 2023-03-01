@@ -403,7 +403,6 @@ export const readSharedAccounts = async (address) => {
     return {}
   }
   const data = docSnap.data()
-  console.log('data ->', data)
 
   return data
 }
@@ -416,7 +415,18 @@ export const readSharedAccount = async (address) => {
     return {}
   }
   const data = docSnap.data()
-  console.log('data ->', data)
+
+  return data
+}
+
+export const readPendingTrx = async (address) => {
+  const docRef = doc(db, 'pendingTransaction', address)
+  const docSnap = await getDoc(docRef)
+  if (!docSnap.exists()) {
+    console.log('Not exists')
+    return {}
+  }
+  const data = docSnap.data()
 
   return data
 }
