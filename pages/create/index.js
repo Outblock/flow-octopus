@@ -12,6 +12,7 @@ import {
   InputRightElement,
   Button,
   Center,
+  Text,
 } from '@chakra-ui/react'
 
 import * as Yup from 'yup'
@@ -118,7 +119,12 @@ export default function Create() {
               <>
                 {addtionKeys.map((key, idx) => {
                   const { publicKey, index, weight } = key
-                  return <>{publicKey}</>
+                  return (
+                    <Flex justify="space-between">
+                      <Text>{publicKey}</Text>
+                      <Text>{weight}</Text>
+                    </Flex>
+                  )
                 })}
               </>
             )}
@@ -187,6 +193,7 @@ export default function Create() {
                 <Button
                   onClick={() => {
                     const { selectedKey, selectedWeight } = values
+                    if (!selectedKey || !selectedWeight) return
                     setAddtionKeys([
                       ...addtionKeys,
                       { publicKey: selectedKey, weight: selectedWeight },
