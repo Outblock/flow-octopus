@@ -7,6 +7,7 @@ import * as fcl from '@onflow/fcl'
 import { MinusIcon } from '@chakra-ui/icons'
 import { getFirestore } from 'firebase/firestore'
 import { doc, setDoc } from 'firebase/firestore'
+
 import {
   Box,
   Flex,
@@ -39,8 +40,8 @@ import { gaCode } from '../../config/constants'
 import accountStore from '../../stores/account'
 import { useAccount } from 'api/query'
 import { ellipseStr, isFlowAddr, db } from 'utils'
-import { createAccount } from 'api/index'
-
+import CreateModal from 'components/createModal'
+import createModalStore from 'stores/createModal'
 export default function Create() {
   const router = useRouter()
   const { user } = accountStore.useState('user')
@@ -58,6 +59,7 @@ export default function Create() {
   const [loading, setLoading] = useState(false)
 
   const [cachhedKeys, setCachedKeys] = useState([])
+  const [createKeys, setCreateKeys] = useState([])
 
   const validationSchema = Yup.object({
     creatorKeyStr: Yup.string().required('Required'),
@@ -93,70 +95,67 @@ export default function Create() {
       setLoading(true)
       const { creatorKeyStr, creatorWeight } = values
       const creatorKeyInfo = JSON.parse(creatorKeyStr)
-      const { publicKey, hashAlgo, signAlgo, index } = creatorKeyInfo
-      const pubKeys = [publicKey]
-      const signAlgos = [signAlgo]
-      const hashAlgos = [hashAlgo]
-      const weights = [Number(creatorWeight).toFixed(2)]
 
-      const user = await fcl.currentUser.snapshot()
-      const addr = user.addr
-      const accounts = [
+      const keys = [
         {
-          address: addr,
-          index,
-          publicKey,
-          hashAlgo,
-          signAlgo,
-          weight: Number(creatorWeight),
+          ...creatorKeyInfo,
+          address: user.addr,
+          weight: creatorWeight,
+          isOwner: true,
         },
-      ]
+      ].concat(addtionKeys)
+      console.log(keys, '======keys===')
+      setCreateKeys(keys)
+      createModalStore.setState({ show: true })
 
-      addtionKeys.map((key) => {
-        const { publicKey, signAlgo, hashAlgo, weight, index, address } = key
-        pubKeys.push(publicKey)
-        signAlgos.push(signAlgo)
-        hashAlgos.push(hashAlgo)
-        weights.push(Number(weight).toFixed(2))
-        accounts.push({
-          address: address,
-          index,
-          publicKey,
-          hashAlgo,
-          signAlgo,
-          weight: Number(weight),
-        })
-      })
+      // const { publicKey, hashAlgo, signAlgo, index } = creatorKeyInfo
+      // const pubKeys = [publicKey]
+      // const signAlgos = [signAlgo]
+      // const hashAlgos = [hashAlgo]
+      // const weights = [Number(creatorWeight).toFixed(2)]
 
-      console.log(pubKeys, signAlgos, hashAlgos, weights)
-      const { trxId, txStatus } = await createAccount(
-        pubKeys,
-        signAlgos,
-        hashAlgos,
-        weights,
-      )
-      await writeToFirebase(trxId, txStatus, accounts)
+      // const user = await fcl.currentUser.snapshot()
+      // const addr = user.addr
+      // const accounts = [
+      //   {
+      //     address: addr,
+      //     index,
+      //     publicKey,
+      //     hashAlgo,
+      //     signAlgo,
+      //     weight: Number(creatorWeight),
+      //   },
+      // ]
 
-      setLoading(false)
+      // addtionKeys.map((key) => {
+      //   const { publicKey, signAlgo, hashAlgo, weight, index, address } = key
+      //   pubKeys.push(publicKey)
+      //   signAlgos.push(signAlgo)
+      //   hashAlgos.push(hashAlgo)
+      //   weights.push(Number(weight).toFixed(2))
+      //   accounts.push({
+      //     address: address,
+      //     index,
+      //     publicKey,
+      //     hashAlgo,
+      //     signAlgo,
+      //     weight: Number(weight),
+      //   })
+      // })
+
+      // console.log(pubKeys, signAlgos, hashAlgos, weights)
+      // const { trxId, txStatus } = await createAccount(
+      //   pubKeys,
+      //   signAlgos,
+      //   hashAlgos,
+      //   weights,
+      // )
+      // await writeToFirebase(trxId, txStatus, accounts)
+
+      // setLoading(false)
     } catch (error) {
       setLoading(false)
     }
-  }
-
-  const writeToFirebase = async (trxId, txStatus, accounts) => {
-    const filter = txStatus.events.filter(
-      (event) => event.type === 'flow.AccountCreated',
-    )
-    const created_address = filter[0].data.address
-    const tx = await fcl.send([fcl.getTransaction(trxId)]).then(fcl.decode)
-    const obj = {
-      id: trxId,
-      address: created_address,
-      accounts,
-      transaction: tx,
-      result: txStatus,
-    }
-    await setDoc(doc(db, 'accounts_creation', trxId), obj)
   }
 
   const renderForm = () => {
@@ -444,6 +443,7 @@ export default function Create() {
                         weight: selectedWeight,
                         address: values.address,
                         index,
+                        isOwner: values.address == user.addr,
                       },
                     ])
                   }}
@@ -507,7 +507,18 @@ export default function Create() {
     )
   }
 
-  return <Box>{renderForm()}</Box>
+  return (
+    <Box>
+      {renderForm()}
+      <CreateModal
+        keys={createKeys}
+        onClose={() => {
+          createModalStore.setState({ show: false })
+          setLoading(false)
+        }}
+      />
+    </Box>
+  )
 }
 
 Create.getLayout = function getLayout(page) {

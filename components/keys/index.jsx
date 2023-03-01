@@ -2,17 +2,21 @@ import { Text, Flex, Box, Stack, Badge, Link } from '@chakra-ui/react'
 import { useTranslation } from 'next-i18next'
 import { ellipseStr, raw2SigStr, raw2HashStr } from 'utils'
 
-export const renderKey = ({
-  publicKey,
-  index,
-  weight,
-  hashAlgoString,
-  signAlgoString,
-  revoked,
-  signAlgo,
-  hashAlgo,
-  address = '',
-}) => {
+export const renderKey = (
+  {
+    publicKey,
+    index,
+    weight,
+    hashAlgoString,
+    signAlgoString,
+    revoked,
+    signAlgo,
+    hashAlgo,
+    address = '',
+  },
+  opt = {},
+) => {
+  const { disableAddressLink = false, isOwner = false } = opt
   return (
     <Flex w="100%" align="center" justify="space-between" my={2}>
       <Box w="50%">
@@ -27,13 +31,17 @@ export const renderKey = ({
       </Box>
       <Box w="25%">
         {address ? (
-          <Link
-            fontStyle="italic"
-            textDecoration="underline"
-            href={`/account/${address}`}
-          >
-            {address}
-          </Link>
+          disableAddressLink ? (
+            <Text>{isOwner ? 'You' : address}</Text>
+          ) : (
+            <Link
+              fontStyle="italic"
+              textDecoration="underline"
+              href={`/account/${address}`}
+            >
+              {address}
+            </Link>
+          )
         ) : (
           <>Index: {index}</>
         )}
