@@ -23,14 +23,17 @@ import { SelectControl, NumberInputControl, SubmitButton, InputControl } from 'f
 import * as Yup from 'yup'
 import useCurrentUser from '../../hooks/currentUser'
 import { getSupportTokenConfig } from '../../config/constants'
-import { transferNFT, transferToken, queryDomainRecord } from '../../api'
+import { transferNFT, transferToken, queryDomainRecord, transferTokenWithSharedAccount } from '../../api'
 import { toast, validateAddress, validateDomain, isFlowAddr } from '../../utils'
 import accountStore from '../../stores/account'
 import modalStore, { setTransferModalConf } from '../../stores/transferModal'
+import { useRouter } from 'next/router'
 
 // import TokenLogo from '../../components/tokenLogo'
 
 const Components = ({ cb }) => {
+  const router = useRouter()
+  const { address = '' } = router.query
   const { t } = useTranslation()
   const tokenConfigs = getSupportTokenConfig()
   const [loading, setLoading] = useState(false)
@@ -135,7 +138,8 @@ const Components = ({ cb }) => {
     try {
       let req = null
       if (type == 'FT') {
-        req = transferToken(token, Number(amount), to)
+        // req = transferToken(token, Number(amount), to)
+        req = transferTokenWithSharedAccount(token, Number(amount), to, from, address)
       } else {
         req = transferNFT(type, token, to)
       }
@@ -165,6 +169,7 @@ const Components = ({ cb }) => {
         title: t(`transfer.error`, { token: token }),
         status: 'error',
       })
+      console.log(error)
       setLoading(false)
     }
     setLoading(false)

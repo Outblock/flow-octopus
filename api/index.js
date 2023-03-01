@@ -1,8 +1,7 @@
 import * as fcl from '@onflow/fcl'
 import { UInt64, Address, String, UFix64, Array, UInt8 } from '@onflow/types'
-
 import { buildAndExecScript } from './scripts'
-import { buildAndSendTrx, buildAndSendTrxWithId } from './transactions'
+import { buildAndSendTrx, buildAndSendTrxWithId, transactions } from './transactions'
 import {
   referAddr,
   getSupportTokenConfig,
@@ -12,7 +11,8 @@ import {
 import { isFlowAddr, getQuery, db } from '../utils'
 import { namehash } from '../utils/hash'
 import axios from 'axios'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
+import * as sdk from '@onflow/sdk';
 // multi
 
 export const createAccount = async (
@@ -298,6 +298,35 @@ export const transferToken = async (token, amount, to) => {
   return res
 }
 
+export const transferTokenWithSharedAccount = async (token, amount, to, userAddress, sharedAddress) => {
+  const receiever = isFlowAddr(to)
+    ? to
+    : await queryDomainRecord(...to.split('.'))
+
+
+    try {
+      let trxScript = transactions['transfer_ft']
+      console.log('trxScript ->', token, amount, to, userAddress, sharedAddress, trxScript)
+      if (typeof trxScript == 'function') {
+        trxScript = trxScript({token})
+      }
+
+      console.log('trxScript 222 ->', trxScript())
+
+      const res = await sendTransaction(
+        trxScript(),
+        [fcl.arg(receiever, Address), fcl.arg(amount.toFixed(8), UFix64)],
+        userAddress,
+        sharedAddress
+      )
+      return res
+
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+}
+
 export const initTokenVault = async (token) => {
   const res = await buildAndSendTrx('init_ft_token', [], { token })
   return res
@@ -403,7 +432,6 @@ export const readSharedAccounts = async (address) => {
     return {}
   }
   const data = docSnap.data()
-
   return data
 }
 
@@ -429,4 +457,105 @@ export const readPendingTrx = async (address) => {
   const data = docSnap.data()
 
   return data
+}
+
+export const sendTransaction = async (cadence, args, userAddress, sharedAccountAddress) => {
+
+  console.log('sendTransaction ->', cadence, args, userAddress, sharedAccountAddress)
+  
+  const createdTime = serverTimestamp()
+
+  const formattedArg = args.map(item => item.xform.asArgument(item.value))
+  console.log('args ->', args, formattedArg)
+
+  const walletAddress = sharedAccountAddress 
+
+  const currentUserKeyinSharedAccount = await readSharedAccount(sharedAccountAddress)
+
+  console.log('currentUserKeyinSharedAccount ->', currentUserKeyinSharedAccount)
+
+  const userKey = currentUserKeyinSharedAccount[userAddress][0]
+  const walletKeyIndex = currentUserKeyinSharedAccount.accounts.indexOf(userAddress)
+
+  console.log('userKey ->', userKey)
+  console.log('walletKeyIndex ->', walletKeyIndex)
+  const weight = userKey.weight
+  // const walletKeyIndex = userKey.index
+  const account = await fcl.send([fcl.getAccount(walletAddress)]).then(fcl.decode);
+  const latestSealedBlock = await fcl.send([fcl.getBlock(true)]).then(fcl.decode);
+
+  console.log('account =>', account, latestSealedBlock)
+
+  const refBlock = latestSealedBlock.id
+  const sequenceNum = account.keys[walletKeyIndex].sequenceNumber
+
+  const tx = {
+    cadence,
+    refBlock,
+    arguments: formattedArg,
+    proposalKey: {
+      address: walletAddress,
+      keyId: walletKeyIndex,
+      sequenceNum: sequenceNum
+    },
+    payer: sharedAccountAddress,
+    payloadSigs: [],
+    envelopeSigs: [],
+    authorizers: [sharedAccountAddress],
+    computeLimit: 9999,
+  };
+  const signedTx = await signTx(tx, walletAddress, walletKeyIndex)
+  const docRef = doc(db, 'pendingTransaction', sharedAccountAddress)
+  await setDoc(docRef, {
+    createdTime,
+    signedAccount: [userAddress],
+    signedWeight: weight,
+    message,
+    tx: signedTx
+  })
+};
+
+export const signTx = async (tx, walletAddress, walletKeyIndex) => {
+  const message = sdk.encodeTransactionEnvelope(tx);
+  const signature = await fcl.currentUser.signUserMessage(message);
+  const userSigs = { 
+    address: walletAddress, 
+    keyId: walletKeyIndex, 
+    sig: signature
+  }
+  tx.envelopeSigs.push(userSigs)
+  return tx
+}
+
+export const sendRawTransaction = async (tx) => {
+  axios.post(
+    `${process.env.NEXT_PUBLIC_FLOW_ACCESS_NODE_REST}/v1/transactions`,
+    {
+      script: Buffer.from(tx.cadence).toString("base64"),
+      arguments: tx.arguments.map((item) =>  Buffer.from(JSON.stringify(item)).toString("base64")),
+      reference_block_id: tx.refBlock,
+      gas_limit: String(tx.computeLimit),
+      payer: tx.payer,
+      proposal_key: {
+        address: sansPrefix(tx.proposalKey.address),
+        key_index: String(tx.proposalKey.keyId),
+        sequence_number: String(tx.proposalKey.sequenceNum)
+      },
+      authorizers: tx.authorizers,
+      payload_signatures: tx.payloadSigs.map((item) => {
+        return {
+          address: item.address,
+          key_index: String(item.keyId),
+          signature: Buffer.from(acct.signature, "hex").toString("base64")
+        }
+      }),
+      envelope_signatures: tx.envelopeSigs.map((item) => {
+        return {
+          address: item.address,
+          key_index: String(item.keyId),
+          signature: Buffer.from(acct.signature, "hex").toString("base64")
+        }
+      }),
+    }
+  )
 }
