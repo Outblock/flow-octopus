@@ -8,10 +8,7 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
+  Text,
 } from '@chakra-ui/react'
 import * as fcl from '@onflow/fcl'
 
@@ -25,6 +22,10 @@ export default function Comp(props) {
   const { show, pendingTrx } = trxStore.useState('show', 'pendingTrx')
   const { t } = useTranslation()
   const [loading, setLoading] = useState(false)
+
+  const { createTime, signedAccount, tx } = pendingTrx
+
+  console.log(pendingTrx, '=====pendingTrx====')
 
   const onClose = () => {
     trxStore.setState({ show: false, pendingTrx: {} })
@@ -44,7 +45,9 @@ export default function Comp(props) {
         <ModalContent>
           <ModalHeader>{t('pending.trx')}</ModalHeader>
           <ModalCloseButton />
-          <ModalBody p={6}>{t('pending.trx')}</ModalBody>
+          <ModalBody p={6}>
+            <Text></Text>
+          </ModalBody>
 
           <ModalFooter>
             <Button

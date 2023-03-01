@@ -17,12 +17,18 @@ import {
   Divider,
   Center,
   Button,
-  List,
   Icon,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+  IconButton,
 } from '@chakra-ui/react'
 
 import Layout from 'components/layouts/appBase'
 import Empty from 'components/empty'
+import { BiMessageSquareDetail } from 'react-icons/bi'
+import trxStore from 'stores/trx'
 
 import { gaCode } from '../../config/constants'
 import {
@@ -59,9 +65,10 @@ export default function Account() {
 
   const { data: accountData = {} } = useSharedAccountInfo(address)
 
-  const { accounts = [] } = accountData
+  const { accounts = [], pendingTrx } = accountData
   const isSharedAccount = accounts.length > 0
 
+  const hasPendingTrx = pendingTrx && pendingTrx.tx
   const {
     data: nftData = {},
     isFetching,
@@ -157,6 +164,23 @@ export default function Account() {
               })}
             </>
           </Box>
+          {hasPendingTrx && (
+            <Alert flex={1} status="info" justifyContent="space-between">
+              <AlertIcon />
+              <Text>{t('pending.trx.tip')}</Text>
+              <IconButton
+                mx={2}
+                variant="outline"
+                colorScheme="green"
+                aria-label="Call Segun"
+                size="sm"
+                icon={<BiMessageSquareDetail />}
+                onClick={() => {
+                  trxStore.setState({ show: true, pendingTrx })
+                }}
+              />
+            </Alert>
+          )}
           <Tabs>
             <TabList>
               <Tab>{t('assets')}</Tab>

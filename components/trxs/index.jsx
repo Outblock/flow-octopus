@@ -18,6 +18,7 @@ import { useTrxs } from 'api/query'
 import { timeformater, ellipseStr } from 'utils'
 import moment from 'moment'
 import LoadingPanel from '../loadingPanel'
+import Empty from 'components/empty'
 
 export default function Comp(props) {
   const { t } = useTranslation()
@@ -45,50 +46,47 @@ export default function Comp(props) {
         <LoadingPanel />
       ) : (
         <TableContainer>
-          <Table variant="striped" colorScheme="teal">
-            <TableCaption>
-              <Button
-                disabled={!hasNextPage}
-                variant="outline"
-                isLoading={isFetching && hasData}
-                onClick={() => {
-                  fetchNextPage({ pageParam: nextCursor })
-                }}
-              >
-                {'Load more'}
-              </Button>
-            </TableCaption>
-            <Thead>
-              <Tr>
-                <Th>{t('time')}</Th>
-                <Th>{t('hash')}</Th>
-                <Th>{t('status')}</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {pages.map((page = {}, idx) => {
-                const { trxs = [] } = page
-                return trxs.map((d, index) => {
-                  const { node } = d
-                  console.log(node)
-                  return (
-                    <Tr key={`${idx}-${index}`}>
-                      <Th>{timeformater(moment(node.time).unix())}</Th>
-                      <Th>{ellipseStr(node.hash)}</Th>
-                      <Th>{node.status}</Th>
-                    </Tr>
-                  )
-                })
-              })}
-            </Tbody>
-            {/* <Tfoot>
-          <Tr>
-            <Th>To convert</Th>
-            <Th>into</Th>
-            <Th isNumeric>multiply by</Th>
-          </Tr>
-        </Tfoot> */}
-          </Table>
+          {hasData ? (
+            <Table variant="striped" colorScheme="teal">
+              <TableCaption>
+                <Button
+                  disabled={!hasNextPage}
+                  variant="outline"
+                  isLoading={isFetching && hasData}
+                  onClick={() => {
+                    fetchNextPage({ pageParam: nextCursor })
+                  }}
+                >
+                  {'Load more'}
+                </Button>
+              </TableCaption>
+              <Thead>
+                <Tr>
+                  <Th>{t('time')}</Th>
+                  <Th>{t('hash')}</Th>
+                  <Th>{t('status')}</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {pages.map((page = {}, idx) => {
+                  const { trxs = [] } = page
+                  return trxs.map((d, index) => {
+                    const { node } = d
+                    console.log(node)
+                    return (
+                      <Tr key={`${idx}-${index}`}>
+                        <Th>{timeformater(moment(node.time).unix())}</Th>
+                        <Th>{ellipseStr(node.hash)}</Th>
+                        <Th>{node.status}</Th>
+                      </Tr>
+                    )
+                  })
+                })}
+              </Tbody>
+            </Table>
+          ) : (
+            <Empty tip={t('empty')} />
+          )}
         </TableContainer>
       )}
     </>

@@ -281,9 +281,8 @@ export const useSharedAccountInfo = (address) => {
         return {}
       }
       const res = await readSharedAccount(address)
-
-      console.log(res)
-
+      const pendingTrx = await readPendingTrx(address)
+      res.pendingTrx = pendingTrx
       return res
     } catch (error) {
       console.log(error)

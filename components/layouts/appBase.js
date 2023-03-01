@@ -4,11 +4,12 @@ import { Container, Divider, Box, useMediaQuery } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'next-i18next'
 
-import { fclinit } from '../../utils'
-import Header from '../../components/header'
-import { useUserCollection } from '../../api/query'
-import accountStore from '../../stores/account'
-import TransferModal from '../../components/transferModal'
+import { fclinit } from 'utils'
+import Header from 'components/header'
+import { useUserCollection } from 'api/query'
+import accountStore from 'stores/account'
+import TransferModal from 'components/transferModal'
+import PendingTrxModal from 'components/pendingTrxModal'
 
 export default function Layout({ children }) {
   fclinit()
@@ -40,6 +41,7 @@ export default function Layout({ children }) {
           {renderChildren()}
         </Container>
         <TransferModal cb={refetch} />
+        <PendingTrxModal />
       </main>
     </>
   )
