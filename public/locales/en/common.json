@@ -5,6 +5,8 @@
     "cancel": "Cancel",
     "empty": "Empty",
     "withdraw": "Withdraw",
+    "transactions": "Transactions",
+    "assets": "Assets",
     "select.token": "Chose your token",
     "token": "Token",
     "tokens": "Tokens",

@@ -100,7 +100,7 @@ export default function Account() {
                         >
                           {addr}
                         </Text>
-                        {!hasPending && (
+                        {hasPending && (
                           <Flex mx={8} align="center" justify="space-between">
                             <IconButton
                               colorScheme="teal"

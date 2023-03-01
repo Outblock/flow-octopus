@@ -22,13 +22,14 @@ import { createAccount } from 'api/index'
 import { getFirestore } from 'firebase/firestore'
 import { doc, setDoc } from 'firebase/firestore'
 import { db } from 'utils'
+import { useRouter } from 'next/router'
 
 export default function Comp(props) {
   const { keys, onClose = () => {} } = props
   const { show } = createModal.useState('show')
   const { t } = useTranslation()
   const [loading, setLoading] = useState(false)
-
+  const router = useRouter()
   let weightSum = 0
   let isSingleWeight = false
   keys.map((k) => {
@@ -87,6 +88,7 @@ export default function Comp(props) {
       )
       await writeToFirebase(trxId, txStatus, accounts)
       setLoading(false)
+      router.push('/account')
 
       onClose()
     } catch (e) {
