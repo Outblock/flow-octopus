@@ -29,7 +29,7 @@ export default function Comp(props) {
 
   const { createTime, signedAccount, tx } = pendingTrx
 
-  console.log(pendingTrx, '=====pendingTrx====')
+  // console.log(pendingTrx, '=====pendingTrx====')
 
   const onClose = () => {
     trxStore.setState({ show: false, pendingTrx: {} })

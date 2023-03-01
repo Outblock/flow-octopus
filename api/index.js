@@ -678,17 +678,24 @@ export const continueSignTx = async (sharedAccountAddress, userAddress) => {
     tx: tx2
   }, {merge: true})
 
+  console.log('signedWeight ==>', data.signedAccount)
   let signedWeight = 0
   for (let address in data.signedAccount) {
-    signedWeight += data.signedAccount[address].weight
+    signedWeight += data.signedAccount[address].signedWeight
   }
   signedWeight += weight
+
+  console.log('signedWeight ==>', signedWeight)
   
   if (signedWeight >= 1000) {
-    const result = await sendRawTransaction(tx2)
-    const sealed = await fcl.tx(result.data.id).onceSealed();
-    await deleteDoc(docRef)
-    return sealed
+    try {
+      const result = await sendRawTransaction(tx2)
+      return await fcl.tx(result.data.id).onceSealed();
+    } catch (error) {
+      console.log(error)
+    } finally {
+      await deleteDoc(docRef)
+    }
   }
 
   return true
