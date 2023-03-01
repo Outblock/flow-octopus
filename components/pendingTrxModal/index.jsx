@@ -39,7 +39,7 @@ export default function Comp(props) {
   const signedAddrs = Object.keys(signedAccount)
 
   const { arguments: args, cadence } = tx
-  console.log(pendingTrx, '=====pendingTrx====')
+  // console.log(pendingTrx, '=====pendingTrx====')
 
   const onClose = () => {
     trxStore.setState({ show: false, pendingTrx: {} })
