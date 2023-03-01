@@ -22,14 +22,14 @@ import { createAccount } from 'api/index'
 import { getFirestore } from 'firebase/firestore'
 import { doc, setDoc } from 'firebase/firestore'
 import { db } from 'utils'
-import { useRouter } from 'next/router'
+import { readSharedAccount } from '../../api/index';
 
 export default function Comp(props) {
   const { keys, onClose = () => {} } = props
   const { show } = createModal.useState('show')
   const { t } = useTranslation()
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
+
   let weightSum = 0
   let isSingleWeight = false
   keys.map((k) => {
@@ -65,13 +65,14 @@ export default function Comp(props) {
       const hashAlgos = []
       const weights = []
 
-      keys.map((key) => {
+      keys.map((key, keyIndex) => {
         const { publicKey, signAlgo, hashAlgo, weight, index, address } = key
         pubKeys.push(publicKey)
         signAlgos.push(signAlgo)
         hashAlgos.push(hashAlgo)
         weights.push(Number(weight).toFixed(2))
         accounts.push({
+          sharedAccountKeyIndex: keyIndex,
           address: address,
           index,
           publicKey,
@@ -88,7 +89,6 @@ export default function Comp(props) {
       )
       await writeToFirebase(trxId, txStatus, accounts)
       setLoading(false)
-      router.push('/account')
 
       onClose()
     } catch (e) {

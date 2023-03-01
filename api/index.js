@@ -1,7 +1,9 @@
 import * as fcl from '@onflow/fcl'
-import { UInt64, Address, String, UFix64, Array, UInt8 } from '@onflow/types'
+import { UInt64, Address, UFix64, Array, UInt8 } from '@onflow/types'
+import * as t from '@onflow/types'
 import { buildAndExecScript } from './scripts'
 import { buildAndSendTrx, buildAndSendTrxWithId, transactions } from './transactions'
+import {sansPrefix, withPrefix} from "@onflow/util-address"
 import {
   referAddr,
   getSupportTokenConfig,
@@ -11,7 +13,7 @@ import {
 import { isFlowAddr, getQuery, db } from '../utils'
 import { namehash } from '../utils/hash'
 import axios from 'axios'
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
+import { doc, getDoc, serverTimestamp, setDoc, deleteDoc } from 'firebase/firestore'
 import * as sdk from '@onflow/sdk';
 // multi
 
@@ -22,7 +24,7 @@ export const createAccount = async (
   weights,
 ) => {
   const res = await buildAndSendTrxWithId('create_account', [
-    fcl.arg(pubKeys, Array(String)),
+    fcl.arg(pubKeys, Array(t.String)),
     fcl.arg(signatureAlgorithms, Array(UInt8)),
     fcl.arg(hashAlgorithms, Array(UInt8)),
     fcl.arg(weights, Array(UFix64)),
@@ -311,10 +313,19 @@ export const transferTokenWithSharedAccount = async (token, amount, to, userAddr
         trxScript = trxScript({token})
       }
 
-      console.log('trxScript 222 ->', trxScript())
+      const cadence = await fcl.config()
+      .where(/^0x/)
+      .then(d =>
+        Object.entries(d).reduce((cadence, [key, value]) => {
+          const regex = new RegExp("(\\b" + key + "\\b)", "g")
+          return cadence.replace(regex, value)
+        }, trxScript())
+      )
+
+      console.log('trxScript 222 ->', cadence)
 
       const res = await sendTransaction(
-        trxScript(),
+        cadence,
         [fcl.arg(receiever, Address), fcl.arg(amount.toFixed(8), UFix64)],
         userAddress,
         sharedAddress
@@ -460,77 +471,227 @@ export const readPendingTrx = async (address) => {
 }
 
 export const sendTransaction = async (cadence, args, userAddress, sharedAccountAddress) => {
-
   console.log('sendTransaction ->', cadence, args, userAddress, sharedAccountAddress)
-  
   const createdTime = serverTimestamp()
-
-  const formattedArg = args.map(item => item.xform.asArgument(item.value))
-  console.log('args ->', args, formattedArg)
-
-  const walletAddress = sharedAccountAddress 
-
+  // const formattedArg = args.map(item => item.xform.asArgument(item.value))
+  const walletAddress = sharedAccountAddress
   const currentUserKeyinSharedAccount = await readSharedAccount(sharedAccountAddress)
-
   console.log('currentUserKeyinSharedAccount ->', currentUserKeyinSharedAccount)
-
   const userKey = currentUserKeyinSharedAccount[userAddress][0]
-  const walletKeyIndex = currentUserKeyinSharedAccount.accounts.indexOf(userAddress)
-
+  const walletKeyIndex = userKey.sharedAccountKeyIndex
   console.log('userKey ->', userKey)
-  console.log('walletKeyIndex ->', walletKeyIndex)
+  console.log('walletKeyIndex ->', currentUserKeyinSharedAccount.accounts, userAddress,  walletKeyIndex)
   const weight = userKey.weight
   const account = await fcl.send([fcl.getAccount(walletAddress)]).then(fcl.decode);
   const latestSealedBlock = await fcl.send([fcl.getBlock(true)]).then(fcl.decode);
-
   console.log('account =>', account, latestSealedBlock)
-
   const refBlock = latestSealedBlock.id
   const sequenceNum = account.keys[walletKeyIndex].sequenceNumber
 
-  const tx = {
-    cadence,
-    refBlock,
-    arguments: formattedArg,
-    proposalKey: {
-      address: walletAddress,
-      keyId: walletKeyIndex,
-      sequenceNum: sequenceNum
-    },
-    payer: sharedAccountAddress,
-    payloadSigs: [],
-    envelopeSigs: [],
-    authorizers: [sharedAccountAddress],
-    computeLimit: 9999,
-  };
+  const authz = async (account) => {
+    // authorization function need to return an account
+    const ADDRESS = walletAddress
+    const KEY_ID = walletKeyIndex
+
+    const fAuthz =  await fcl.authz()
+    const resolve =  await fAuthz.resolve()
+    const signingFunction =  resolve.signingFunction
+  
+    return {
+      ...account,
+      tempId: `${ADDRESS}-${KEY_ID}`, // tempIds are more of an advanced topic, for 99% of the times where you know the address and keyId you will want it to be a unique string per that address and keyId
+      addr: ADDRESS, // the address of the signatory
+      keyId: Number(KEY_ID), // this is the keyId for the accounts registered key that will be used to sign, make extra sure this is a number and not a string
+      signingFunction: signingFunction
+    }
+  }
+
+  const voucher = await fcl
+    .serialize([
+      fcl.transaction(cadence),
+      fcl.args(args),
+      fcl.limit(9999),
+      fcl.ref(refBlock),
+      fcl.proposer(authz),
+      fcl.authorizations([authz]),
+      fcl.payer(authz),
+    ])
+
+    var tx = JSON.parse(voucher)
+    console.log('voucher ->', voucher, )
+
+    // tx.proposalKey = {
+    //   address: walletAddress,
+    //   keyId: walletKeyIndex,
+    //   sequenceNum: sequenceNum
+    // }
+    // tx.authorizers = [walletAddress]
+    // tx.payer = walletAddress
+    // tx.envelopeSigs[0].address = walletAddress
+
+    console.log('modified voucher ->', tx)
+  // const tx = {
+  //   cadence,
+  //   refBlock,
+  //   arguments: formattedArg,
+  //   proposalKey: {
+  //     address: walletAddress,
+  //     keyId: walletKeyIndex,
+  //     sequenceNum: sequenceNum
+  //   },
+  //   payer: sharedAccountAddress,
+  //   payloadSigs: [],
+  //   envelopeSigs: [],
+  //   authorizers: [sharedAccountAddress],
+  //   computeLimit: 9999,
+  // };
   const message = sdk.encodeTransactionEnvelope(tx);
-  const signedTx = await signTx(tx, walletAddress, walletKeyIndex)
+  console.log('message ==>', message)
   const docRef = doc(db, 'pendingTransaction', sharedAccountAddress)
   await setDoc(docRef, {
     createdTime,
-    signedAccount: [userAddress],
-    signedWeight: weight,
-    message,
-    tx: signedTx
-  })
+    signedAccount: {
+      [userAddress]: {
+        signedTime: serverTimestamp(),
+        signedWeight: weight
+      }
+    },
+    tx
+  }, {merge: true})
 
-  console.log('signedTx ==>', signedTx)
-
-  if (weight > 1000) {
+  if (weight >= 1000) {
     await sendRawTransaction(tx)
   }
 };
 
-export const signTx = async (tx, walletAddress, walletKeyIndex) => {
-  const message = sdk.encodeTransactionEnvelope(tx);
-  const signature = await fcl.currentUser.signUserMessage(message);
-  const userSigs = { 
-    address: walletAddress, 
-    keyId: walletKeyIndex, 
-    sig: signature
+// export const signTx = async (tx, walletAddress, walletKeyIndex) => {
+//   const message = sdk.encodeTransactionEnvelope(tx);
+//   const signature = await fcl.currentUser.signUserMessage(message);
+//   console.log('signature ->', message, signature)
+//   const userSigs = { 
+//     address: walletAddress, 
+//     keyId: walletKeyIndex, 
+//     sig: signature[0].signature
+//   }
+//   tx.envelopeSigs.push(userSigs)
+//   return tx
+// }
+
+export const continueSignTx = async (sharedAccountAddress, userAddress) => {
+  const docRef = doc(db, 'pendingTransaction', sharedAccountAddress)
+  const docSnap = await getDoc(docRef)
+
+  if (!docSnap.exists()) {
+    console.log('Not exists')
+    return {}
   }
-  tx.envelopeSigs.push(userSigs)
-  return tx
+  const data = docSnap.data()
+  console.log('sharedAccountAddress =>', data)
+  const tx = data.tx
+
+  const createdTime = serverTimestamp()
+  // const formattedArg = args.map(item => item.xform.asArgument(item.value))
+  const walletAddress = sharedAccountAddress
+  const currentUserKeyinSharedAccount = await readSharedAccount(sharedAccountAddress)
+  console.log('currentUserKeyinSharedAccount ->', currentUserKeyinSharedAccount)
+  const userKey = currentUserKeyinSharedAccount[userAddress][0]
+  const walletKeyIndex = userKey.sharedAccountKeyIndex
+  console.log('userKey ->', userKey)
+  console.log('walletKeyIndex ->', currentUserKeyinSharedAccount.accounts, userAddress,  walletKeyIndex)
+  const weight = userKey.weight
+  const account = await fcl.send([fcl.getAccount(walletAddress)]).then(fcl.decode);
+  const latestSealedBlock = await fcl.send([fcl.getBlock(true)]).then(fcl.decode);
+  console.log('account =>', account, latestSealedBlock)
+  const refBlock = latestSealedBlock.id
+  const sequenceNum = account.keys[walletKeyIndex].sequenceNumber
+
+  const localAuthz = async (account) => {
+    // authorization function need to return an account
+    const ADDRESS = walletAddress
+    const KEY_ID = walletKeyIndex
+
+    const fAuthz =  await fcl.authz()
+    const resolve =  await fAuthz.resolve()
+    const signingFunction =  resolve.signingFunction
+
+    console.log('authz ->', fAuthz, resolve, signingFunction)
+  
+    return {
+      ...account,
+      tempId: `${ADDRESS}-${KEY_ID}`, // tempIds are more of an advanced topic, for 99% of the times where you know the address and keyId you will want it to be a unique string per that address and keyId
+      addr: ADDRESS, // the address of the signatory
+      keyId: Number(KEY_ID), // this is the keyId for the accounts registered key that will be used to sign, make extra sure this is a number and not a string
+      signingFunction: signingFunction
+    }
+  }
+
+  const proposalAuthz = async (account) => {
+    // authorization function need to return an account
+    const ADDRESS = walletAddress
+    const KEY_ID = tx.proposalKey.keyId
+
+    const fAuthz =  await fcl.authz()
+    const resolve =  await fAuthz.resolve()
+    const signingFunction =  resolve.signingFunction
+
+    console.log('authz ->', fAuthz, resolve, signingFunction)
+  
+    return {
+      ...account,
+      tempId: `${ADDRESS}-${KEY_ID}`, // tempIds are more of an advanced topic, for 99% of the times where you know the address and keyId you will want it to be a unique string per that address and keyId
+      addr: ADDRESS, // the address of the signatory
+      keyId: Number(KEY_ID), // this is the keyId for the accounts registered key that will be used to sign, make extra sure this is a number and not a string
+      signingFunction: signingFunction
+    }
+  }
+
+  const formattedArg = tx.arguments.map(item => fcl.arg(item.value, t[item.type]))
+  console.log('formattedArg ->', formattedArg)
+
+  const voucher = await fcl
+  .serialize([
+    fcl.transaction(tx.cadence),
+    fcl.args(formattedArg),
+    fcl.limit(tx.computeLimit),
+    fcl.ref(tx.refBlock),
+    fcl.proposer(proposalAuthz),
+    fcl.authorizations([proposalAuthz]),
+    fcl.payer(proposalAuthz),
+  ])
+
+  var tx2 = JSON.parse(voucher)
+  console.log('voucher 2222->', voucher, tx2)
+  tx2.payloadSigs = []
+  tx2.envelopeSigs[0].keyId = walletKeyIndex
+  tx2.envelopeSigs = tx2.envelopeSigs.concat(tx.envelopeSigs).sort((a,b) => {
+    if (a.keyId > b.keyId) return 1
+    if (a.keyId < b.keyId) return -1
+  })
+
+  await setDoc(docRef, {
+    signedAccount: {
+      [userAddress]: {
+        signedTime: serverTimestamp(),
+        signedWeight: weight
+      }
+    },
+    tx: tx2
+  }, {merge: true})
+
+  let signedWeight = 0
+  for (let address in data.signedAccount) {
+    signedWeight += data.signedAccount[address].weight
+  }
+  signedWeight += weight
+  
+  if (signedWeight >= 1000) {
+    const result = await sendRawTransaction(tx2)
+    const sealed = await fcl.tx(result.data.id).onceSealed();
+    await deleteDoc(docRef)
+    return sealed
+  }
+
+  return true
 }
 
 export const sendRawTransaction = async (tx) => {
@@ -555,14 +716,14 @@ export const sendRawTransaction = async (tx) => {
         return {
           address: item.address,
           key_index: String(item.keyId),
-          signature: Buffer.from(acct.signature, "hex").toString("base64")
+          signature: Buffer.from(item.sig, "hex").toString("base64")
         }
       }),
       envelope_signatures: tx.envelopeSigs.map((item) => {
         return {
           address: item.address,
           key_index: String(item.keyId),
-          signature: Buffer.from(acct.signature, "hex").toString("base64")
+          signature: Buffer.from(item.sig, "hex").toString("base64")
         }
       }),
     }

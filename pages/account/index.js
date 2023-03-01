@@ -77,15 +77,15 @@ export default function Account() {
               {sharedAccount.map((addr, idx) => {
                 const accountInfo = data[addr]
                 const { pendingTrx } = accountInfo
+                console.log('pendingTrx ===>', pendingTrx)
                 const hasPending =
                   pendingTrx &&
-                  pendingTrx.signedAccount &&
-                  pendingTrx.signedAccount.indexOf(currentAddr) == -1
+                  pendingTrx[currentAddr]
                 let keys = Object.keys(accountInfo)
                 keys = keys.splice(0, keys.length - 3)
                 return (
-                  <AccordionItem >
-                    <AccordionButton>
+                  <AccordionItem key={idx}>
+                    <AccordionButton key={`btn-${idx}`}>
                       <Flex
                         flex={1}
                         textAlign="left"
@@ -100,7 +100,7 @@ export default function Account() {
                         >
                           {addr}
                         </Text>
-                        {hasPending && (
+                        {!hasPending && (
                           <Flex mx={8} align="center" justify="space-between">
                             <IconButton
                               colorScheme="teal"
@@ -114,6 +114,7 @@ export default function Account() {
                           </Flex>
                         )}
                       </Flex>
+
                       <AccordionIcon />
                     </AccordionButton>
 

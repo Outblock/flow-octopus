@@ -17,9 +17,13 @@ import { getFirestore } from 'firebase/firestore'
 import { doc, setDoc } from 'firebase/firestore'
 import { db } from 'utils'
 import trxStore from 'stores/trx'
+import accountStore from 'stores/account'
+import { continueSignTx } from '../../api'
 
 export default function Comp(props) {
   const { show, pendingTrx } = trxStore.useState('show', 'pendingTrx')
+  const { user } = accountStore.useState('user')
+  const currentAddr = user.addr
   const { t } = useTranslation()
   const [loading, setLoading] = useState(false)
 
@@ -31,7 +35,11 @@ export default function Comp(props) {
     trxStore.setState({ show: false, pendingTrx: {} })
   }
 
-  const handleSign = async () => {}
+  const handleSign = async () => {
+    console.log('pendingTrx =>', pendingTrx)
+    await continueSignTx(pendingTrx.tx.payer, currentAddr)
+    trxStore.setState({ show: false, pendingTrx: {} })
+  }
 
   return (
     <>
